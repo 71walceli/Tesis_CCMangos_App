@@ -133,22 +133,17 @@ export const LecturaScreen = () => {
 
   const guardar = async () => {
     try {
-      const xyz =
-        Date.now().toString(36) + Math.random().toString(36).substring(2);
-
       const nuevaLectura = {
         Id_Planta: plnt.id,
         planta: plnt.Codigo_Planta,
-
         CantidadInflorescencias: Number(lectura.CantidadInflorescencias),
         CantidadFrutonIniciales: Number(lectura.CantidadFrutonIniciales),
         CantidadFrutosMaduración: Number(lectura.CantidadFrutosMaduración),
         CantidadInflorescenciasPerdidas: Number(lectura.CantidadInflorescenciasPerdidas),
         Enfermedades: lectura.Enfermedades,
         Observacion: lectura.Observacion,
-        Fecha_Visita: lectura.FechaVisita,
-        
-        SyncId: xyz,
+        FechaVisita: lectura.FechaVisita,
+        SyncId: Date.now().toString(36) + Math.random().toString(36).substring(2),
       };
 
       // Agregar la nueva lectura a allLecturas
@@ -168,9 +163,7 @@ export const LecturaScreen = () => {
             navigation.goBack();
             return true;
           })
-          .catch(() => {
-            return false;
-          });
+          .catch(e => false);
       } else {
         const lecturasTotales =
           Object.keys(allLecturas).length === 0
