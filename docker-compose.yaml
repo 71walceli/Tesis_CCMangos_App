@@ -1,0 +1,21 @@
+
+services:
+  react-native-dev:
+    build: 
+      context: .
+    environment:
+      TZ: America/Guayaquil
+      DISPLAY: $DISPLAY
+    entrypoint: bash ./boot.sh
+    #entrypoint: yarn run android
+    group_add: 
+      - plugdev  # plugdev
+      - render  # render
+    privileged: true
+    user: "1000:1000"
+    volumes:
+      - .:/Project
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./Data:/home/AndroidStudio
+    working_dir: /Project
+
