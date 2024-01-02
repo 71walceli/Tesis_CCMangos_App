@@ -5,6 +5,7 @@ import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiErrorResponse} from '../interfaces/BaseApiInterface';
 import {AuthContext} from '../context/AuthContext';
 import {ApiEndpoints} from './routes';
+import { printStackTrace } from '../helpers/utils';
 
 export const useRequest = () => {
   const {ShowAlertApiError} = useContext(AlertContext);
@@ -45,6 +46,18 @@ export const useRequest = () => {
 
   //#region RequestConfig
 
+  const handleApiError = (error: AxiosError<ApiErrorResponse>) => {
+    ShowAlertApiError(error);
+    console.error({
+      cause: error.cause,
+      response: error.response?.data,
+      code: error.code,
+      message: error.message,
+      stackTrace: printStackTrace(error),
+    });
+    throw error;
+  };
+
   const getRequest = async <T extends unknown>(
     endpoint: string,
     params?: object,
@@ -53,10 +66,7 @@ export const useRequest = () => {
     setIsLoading(isLoading === true ? true : false);
     return await ApiRequest.get(endpoint, {params})
       .then(({data}: AxiosResponse<T>) => data)
-      .catch((error: AxiosError<ApiErrorResponse>) => {
-        ShowAlertApiError(error);
-        throw error;
-      })
+      .catch(handleApiError)
       .finally(() => {
         setIsLoading(false);
       });
@@ -68,12 +78,10 @@ export const useRequest = () => {
     params?: object,
   ): Promise<T> => {
     setIsLoading(true);
+
     return await ApiRequest.post(endpoint, data, {params})
       .then(({data}: AxiosResponse<T>) => data)
-      .catch((error: AxiosError<ApiErrorResponse>) => {
-        ShowAlertApiError(error);
-        throw error;
-      })
+      .catch(handleApiError)
       .finally(() => {
         setIsLoading(false);
       });
@@ -87,11 +95,7 @@ export const useRequest = () => {
       data,
     })
       .then(({data}: AxiosResponse<T>) => data)
-      .catch((error: AxiosError<ApiErrorResponse>) => {
-        ShowAlertApiError(error);
-        console.log(JSON.stringify(error, null, 3));
-        throw error;
-      })
+      .catch(handleApiError)
       .finally(() => {
         setIsLoading(false);
       });
@@ -105,11 +109,7 @@ export const useRequest = () => {
     setIsLoading(true);
     return await ApiPostFileRequest.post(endpoint, data, {params})
       .then(({data}: AxiosResponse<T>) => data)
-      .catch((error: AxiosError<ApiErrorResponse>) => {
-        console.error(JSON.stringify(error, null, 3));
-        ShowAlertApiError(error);
-        throw error;
-      })
+      .catch(handleApiError)
       .finally(() => {
         setIsLoading(false);
       });
