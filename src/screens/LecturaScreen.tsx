@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Checkbox } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BaseScreen } from '../Template/BaseScreen';
 import { GlobalLecturas, Plantas } from '../interfaces/ApiInterface';
 import { colores, iconos, styles } from '../theme/appTheme';
 import { InputForm } from '../components/InputForm';
-import { Card } from 'react-native-paper';
+import { Card, List } from 'react-native-paper';
 import { useWindowDimensions } from 'react-native';
 import { TextButton } from '../components/TextButton';
 import { ButtonWithText } from '../components/ButtonWithText';
@@ -20,7 +20,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 export const LecturaScreen = () => {
   const route = useRoute();
-  const { postRequest } = useRequest();
+  const { getRequest, postRequest } = useRequest();
   const { SaveData, GetData } = useBaseStorage();
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
@@ -30,22 +30,18 @@ export const LecturaScreen = () => {
   const { plnt } = route.params as {
     plnt: Plantas;
   };
-  const [lectura, setLectura] = useState({
-    E1: '',
-    E2: '',
-    E3: '',
-    E4: '',
-    E5: '',
-    GR1: '',
-    GR2: '',
-    GR3: '',
-    GR4: '',
-    GR5: '',
-    Total: '',
-    Cherelles: '',
-    Observacion: '',
+  const defaultFormLectura = () => ({
+    CantidadInflorescencias: "",
+    CantidadFrutonIniciales: "",
+    CantidadFrutosMaduración: "",
+    CantidadInflorescenciasPerdidas: "",
+    Enfermedades: [],
+    Observacion: "",
     FechaVisita: '',
-  });
+  })
+  // TODO Load from API
+  const [enfermedades, setEnfermedades] = useState()
+  const [lectura, setLectura] = useState(defaultFormLectura());
 
   const [allLecturas, setAllLecturas] = useState<GlobalLecturas[]>([]);
 
@@ -56,6 +52,28 @@ export const LecturaScreen = () => {
 
   useEffect(() => {
     generateFecha();
+  }, []);
+  useEffect(() => {
+    if (enfermedades)
+      return
+    // TODO Cargar desde LocalStorage
+    
+    const cargarLocalmente = () => AsyncStorage.getItem("enfermedades")
+      .then(data => JSON.parse(data))
+      .catch(() => [])
+
+    if (hasConection) {
+      getRequest(ApiEndpoints.Enfermedad)
+        .then(data => {
+          setEnfermedades(data);
+          AsyncStorage.setItem("enfermedades", JSON.stringify(data))
+        })
+        .catch(() => {
+          cargarLocalmente().then(v => setEnfermedades(v))
+        })
+    } else {
+      cargarLocalmente().then(v => setEnfermedades(v))
+    }
   }, []);
 
   const guardarLecturasEnLocal = async (
@@ -113,7 +131,7 @@ export const LecturaScreen = () => {
       );
   };
 
-  const si = async () => {
+  const guardar = async () => {
     try {
       const xyz =
         Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -121,21 +139,16 @@ export const LecturaScreen = () => {
       const nuevaLectura = {
         Id_Planta: plnt.id,
         planta: plnt.Codigo_Planta,
-        E1: lectura['E1'],
-        E2: lectura['E2'],
-        E3: lectura['E3'],
-        E4: lectura['E4'],
-        E5: lectura['E5'],
-        GR1: lectura['GR1'],
-        GR2: lectura['GR2'],
-        GR3: lectura['GR3'],
-        GR4: lectura['GR4'],
-        GR5: lectura['GR5'],
-        Total: lectura['Total'],
-        Cherelles: lectura['Cherelles'],
+
+        CantidadInflorescencias: Number(lectura.CantidadInflorescencias),
+        CantidadFrutonIniciales: Number(lectura.CantidadFrutonIniciales),
+        CantidadFrutosMaduración: Number(lectura.CantidadFrutosMaduración),
+        CantidadInflorescenciasPerdidas: Number(lectura.CantidadInflorescenciasPerdidas),
+        Enfermedades: lectura.Enfermedades,
+        Observacion: lectura.Observacion,
+        Fecha_Visita: lectura.FechaVisita,
+        
         SyncId: xyz,
-        Observacion: lectura['Observacion'],
-        Fecha_Visita: lectura['FechaVisita'],
       };
 
       // Agregar la nueva lectura a allLecturas
@@ -145,32 +158,13 @@ export const LecturaScreen = () => {
       }));
 
       if (hasConection) {
-        await postRequest(ApiEndpoints.Lectura, {
-          E1: lectura['E1'] ? parseInt(lectura['E1'], 10) : 0,
-          E2: lectura['E2'] ? parseInt(lectura['E2'], 10) : 0,
-          E3: lectura['E3'] ? parseInt(lectura['E3'], 10) : 0,
-          E4: lectura['E4'] ? parseInt(lectura['E4'], 10) : 0,
-          E5: lectura['E5'] ? parseInt(lectura['E5'], 10) : 0,
-          GR1: lectura['GR1'] ? parseInt(lectura['GR1'], 10) : 0,
-          GR2: lectura['GR2'] ? parseInt(lectura['GR2'], 10) : 0,
-          GR3: lectura['GR3'] ? parseInt(lectura['GR3'], 10) : 0,
-          GR4: lectura['GR4'] ? parseInt(lectura['GR4'], 10) : 0,
-          GR5: lectura['GR5'] ? parseInt(lectura['GR5'], 10) : 0,
-          Total: lectura['Total'] ? parseInt(lectura['Total'], 10) : 0,
-          Cherelles: lectura['Cherelles']
-            ? parseInt(lectura['Cherelles'], 10)
-            : 0,
-          SyncId: xyz,
-          Observacion: lectura['Observacion'],
-          FechaVisita: new Date(),
-          Id_Planta: plnt.id,
-        })
+        await postRequest(ApiEndpoints.Lectura, { ...nuevaLectura })
           .then(async () => {
-            await plantaRegisterValue(plnt.id),
-              ShowAlert('default', {
-                title: 'Exito',
-                message: 'Se guardó en el servidor correctamente.',
-              });
+            plantaRegisterValue(plnt.id)
+            ShowAlert('default', {
+              title: 'Exito',
+              message: 'Se guardó en el servidor correctamente.',
+            });
             navigation.goBack();
             return true;
           })
@@ -185,25 +179,10 @@ export const LecturaScreen = () => {
         const guardadoExitoso = await guardarLecturasEnLocal(lecturasTotales);
         if (guardadoExitoso) {
           generateFecha();
-          setLectura({
-            E1: '',
-            E2: '',
-            E3: '',
-            E4: '',
-            E5: '',
-            GR1: '',
-            GR2: '',
-            GR3: '',
-            GR4: '',
-            GR5: '',
-            Cherelles: '',
-            Total: '',
-            Observacion: '',
-            FechaVisita: '',
-          });
+          setLectura(defaultFormLectura());
           setPaginado(0);
           setAllLecturas([]);
-          await plantaRegisterValue(plnt.id);
+          plantaRegisterValue(plnt.id);
           navigation.goBack();
           return true;
         } else {
@@ -281,142 +260,83 @@ export const LecturaScreen = () => {
                 <InputForm
                   colorBase={colores.plomoclaro}
                   keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Estadio 1'}
-                  value={lectura['E1'].toString()}
-                  onChange={value => setLectura({ ...lectura, ['E1']: value })}
+                  placeholder={'N° Inflorescencias'}
+                  value={lectura.CantidadInflorescencias}
+                  onChange={value => setLectura({ ...lectura, CantidadInflorescencias: value })}
                 />
                 <InputForm
                   colorBase={colores.plomoclaro}
                   keyboard="numeric"
                   ancho={0.8}
-                  placeholder={'Estadio 2'}
-                  value={lectura['E2']}
-                  onChange={value => setLectura({ ...lectura, ['E2']: value })}
+                  placeholder={'N° Fructificaciones'}
+                  value={lectura.CantidadFrutonIniciales}
+                  onChange={value => setLectura({ ...lectura, CantidadFrutonIniciales: value })}
                 />
                 <InputForm
                   colorBase={colores.plomoclaro}
                   keyboard="numeric"
                   ancho={0.8}
-                  placeholder={'Estadio 3'}
-                  value={lectura['E3']}
-                  onChange={value => setLectura({ ...lectura, ['E3']: value })}
+                  placeholder={'N° Frutos en Maduración'}
+                  value={lectura.CantidadFrutosMaduración}
+                  onChange={value => setLectura({ ...lectura, CantidadFrutosMaduración: value })}
                 />
                 <InputForm
                   colorBase={colores.plomoclaro}
                   keyboard="numeric"
                   ancho={0.8}
-                  placeholder={'Estadio 4'}
-                  value={lectura['E4']}
-                  onChange={value => setLectura({ ...lectura, ['E4']: value })}
+                  placeholder={'N° Inflorescencias Perdidas'}
+                  value={lectura.CantidadInflorescenciasPerdidas}
+                  onChange={value => setLectura({ ...lectura, CantidadInflorescenciasPerdidas: value })}
                 />
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Estadio 5'}
-                  value={lectura['E5']}
-                  onChange={value => setLectura({ ...lectura, ['E5']: value })}
-                />
-                
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Cherelles'}
-                  value={lectura['Cherelles']}
-                  onChange={value =>
-                    setLectura({ ...lectura, ['Cherelles']: value })
-                  }
-                />
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Total'}
-                  value={lectura['Total']}
-                  onChange={value => setLectura({ ...lectura, ['Total']: value })}
-                />
-              </View>
-              <View style={{ flexDirection: 'row', alignSelf: 'flex-end' }}>
-                <TextButton
-                  title={'Siguiente'}
-                  anyfunction={() => setPaginado(1)}
-                />
-              </View>
-            </>
-          ) : (
-            <>
-              <View style={{ backgroundColor: colores.plomoclaro }}>
-                <Text style={{
-                  color: colores.primario,
-                  fontWeight: 'bold',
-                  marginTop: 20,
-                }}>Monilla</Text>
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Grado 1'}
-                  value={lectura['GR1']}
-                  onChange={value => setLectura({ ...lectura, ['GR1']: value })}
-                />
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Grado 2'}
-                  value={lectura['GR2']}
-                  onChange={value => setLectura({ ...lectura, ['GR2']: value })}
-                />
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Grado 3'}
-                  value={lectura['GR3']}
-                  onChange={value => setLectura({ ...lectura, ['GR3']: value })}
-                />
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Grado 4'}
-                  value={lectura['GR4']}
-                  onChange={value => setLectura({ ...lectura, ['GR4']: value })}
-                />
-                <InputForm
-                  colorBase={colores.plomoclaro}
-                  keyboard="numeric"
-                  ancho={0.8}
-                  placeholder={'Grado 5'}
-                  value={lectura['GR5']}
-                  onChange={value => setLectura({ ...lectura, ['GR5']: value })}
-                />
-                
+                <Card>
+                  <Card.Title title="Enfermedades" />
+                  <Card.Content>
+                    {enfermedades?.map?.(e => (
+                      <View key={e.id}>
+                        {/* TODO Convert this into ListItem component */}
+                        <List.Item
+                          title={e.Nombre}
+                          right={_ => <Icon size={25} color={colores.primario} name={
+                            lectura.Enfermedades.includes(e.id)
+                              ? "checkmark-circle" 
+                              : "checkmark-circle-outline"
+                          } />}
+                          onPress={() => {
+                            setLectura(prev => {
+                              const index = prev.Enfermedades.indexOf(e.id)
+                              index >= 0
+                                ? prev.Enfermedades.splice(index, 1)
+                                : prev.Enfermedades.push(e.id)
+                              return {...prev}
+                            })
+                          }}
+                        />
+                        {/* <Checkbox.IOS
+                          status={lectura.Enfermedades.includes(e) ? "checked" : "unchecked"}
+                          //status={lectura.Enfermedades.includes(e)}
+                        /> */}
+                      </View>
+                    ) )}
+                  </Card.Content>
+                </Card>
                 <InputForm
                   colorBase={colores.plomoclaro}
                   ancho={0.8}
                   placeholder={'Observacion'}
                   value={lectura.Observacion.toUpperCase()}
                   onChange={value => {
-                    setLectura({ ...lectura, ['Observacion']: value });
+                    setLectura({ ...lectura, Observacion: value });
                   }}
                 />
-              </View>
-              <View style={{ flexDirection: 'row', alignSelf: 'flex-start' }}>
-                <TextButton
-                  title={'Volver'}
-                  anyfunction={() => setPaginado(0)}
+                <ButtonWithText
+                  icon={iconos.guardar}
+                  anyfunction={guardar}
+                  title="Guardar"
                 />
               </View>
-              <ButtonWithText
-                icon={iconos.guardar}
-                anyfunction={async () => {
-                  await si();
-                }}
-                title="Guardar"
-              />
+            </>
+          ) : (
+            <>
               {/* {__DEV__ && (
                 <ButtonWithText
                   anyfunction={eliminarCatalogosDeMemoria}
