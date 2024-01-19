@@ -8,7 +8,7 @@ import {colores} from '../theme/appTheme';
 import {StackHeader} from './StackHeader';
 import {RegisterScreen} from '../screens/Auth/RegisterScreen';
 import {RecoveryPasswordScreen} from '../screens/Auth/RecoveryPasswordScreen';
-import {NextScreen} from '../screens/NextScreen';
+import {MainScreen} from '../screens/MainScreen';
 import {DrawerHeader} from './DrawerHeader';
 import {Tabs} from './Tabs';
 import {LecturaScreen} from '../screens/LecturaScreen';
@@ -94,7 +94,7 @@ export const Navigator = () => {
 
                   <Stack.Screen
                     name="NextScreen"
-                    component={NextScreen}
+                    component={MainScreen}
                     options={{
                       header: props => (
                         <StackHeader title={'NextScreen'}></StackHeader>

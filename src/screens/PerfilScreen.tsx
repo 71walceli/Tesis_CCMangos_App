@@ -19,7 +19,7 @@ export const PerfilScreen = () => {
       setTimeout(() => {
         getPorfile();
         setShowProfile(true);
-      }, 1000); // Mostrar el perfil después de 3 segundos
+      }, 100); // Mostrar el perfil después de 3 segundos
     }
   }, [isFocused]);
 
@@ -54,14 +54,11 @@ export const PerfilScreen = () => {
     );
   };
 
-  const iniciales = `${profile?.first_name.slice(
-    0,
-    1,
-  )}${profile?.last_name.slice(0, 1)}`;
+  const iniciales = `${profile?.first_name?.slice(0, 1,)}${profile?.last_name?.slice(0, 1)}`;
 
   return (
     <BaseScreen>
-      <Background></Background>
+      <Background />
 
       <View style={styles.container}>
         {profile && showProfile ? (

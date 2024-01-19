@@ -9,24 +9,16 @@ import {BaseScreen} from '../../Template/BaseScreen';
 import {TextButton} from '../../components/TextButton';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import DeviceInfo from 'react-native-device-info';
+import Config from "react-native-config"
 
-let user = '';
-let pass = '';
-
-if (__DEV__) {
-  //user = 'acuenca';
-  //pass = 'Coyote2022';
-  user = 'jpalma';
-  pass = 'Test2020*+';
-}
 
 export const LoginScreen = () => {
   const {signIn} = useContext(AuthContext);
   const navigation = useNavigation();
 
   const {email, password, onChange} = useForm({
-    email: user,
-    password: pass,
+    email: Config.DEFAULT_USERNAME,
+    password: Config.DEFAULT_PASSWORD,
   });
 
   const Login = () => {
@@ -64,7 +56,7 @@ export const LoginScreen = () => {
         value={password}
         onChange={value => onChange(value, 'password')}></InputForm>
       <ButtonWithText
-        anyfunction={() => Login()}
+        onPress={() => Login()}
         title={'INICIAR'}
         icon="rocket"></ButtonWithText>
       <View
@@ -74,12 +66,12 @@ export const LoginScreen = () => {
         }}>
         <TextButton
           title={'¿No tienes cuenta? ¡Registrate!'}
-          anyfunction={() =>
+          onPress={() =>
             navigation.dispatch(CommonActions.navigate('RegisterScreen'))
           }></TextButton>
         {/* <TextButton
           title={'Recuperar cuenta'}
-          anyfunction={() =>
+          onPress={() =>
             navigation.dispatch(
               CommonActions.navigate('RecoveryPasswordScreen'),
             )

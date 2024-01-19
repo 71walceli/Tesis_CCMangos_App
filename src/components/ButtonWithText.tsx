@@ -3,9 +3,10 @@ import {TouchableOpacity, Text, View} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {colores, styles} from '../theme/appTheme';
 
+
 interface Props {
   // TODO Ponerle onPress o handlePress
-  anyfunction: (() => void) | (() => Promise<void>);
+  onPress: (() => void) | (() => Promise<void>);
   title: string;
   color?: string;
   colorTexto?: string;
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export const ButtonWithText = ({
-  anyfunction,
+  onPress,
   title,
   color = colores.LocationBg,
   colorTexto = colores.primario,
@@ -43,7 +44,7 @@ export const ButtonWithText = ({
     <TouchableOpacity
       activeOpacity={0.8}
       disabled={disabled}
-      onPress={anyfunction}
+      onPress={onPress}
       style={{
         height: alto,
         marginHorizontal: marginH,

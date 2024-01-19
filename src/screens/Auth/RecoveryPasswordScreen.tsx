@@ -27,7 +27,8 @@ export const RecoveryPasswordScreen = () => {
         onChange={value => setemail(value)}></Input>
       <View style={{height: 20, width: '100%'}}></View>
       <ButtonWithText
-        anyfunction={() => {}}
+        // TODO Dirigir a página Web respectiva
+        onPress={() => {}}
         title={'RECUPERAR CUENTA'}></ButtonWithText>
     </BaseScreen>
   );

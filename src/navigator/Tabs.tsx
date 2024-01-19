@@ -3,7 +3,7 @@ import {Platform} from 'react-native';
 import {iconos} from '../theme/appTheme';
 import {colores} from '../theme/appTheme';
 import {InfoScreen} from '../screens/InfoScreen';
-import {NextScreen} from '../screens/NextScreen';
+import {MainScreen} from '../screens/MainScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ReadingScreen} from '../screens/ReadingScreen';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -15,7 +15,7 @@ const TabOptions = [
     name: 'HomeScreen',
     title: 'Inicio',
     icon: iconos.home,
-    component: NextScreen,
+    component: MainScreen,
   },
   {
     name: 'Lecturs',

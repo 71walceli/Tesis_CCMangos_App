@@ -81,7 +81,7 @@ export const FotoPlantaScreen = () => {
               <View style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
                 <TextButton
                   title={'Tomar foto'}
-                  anyfunction={() => {
+                  onPress={() => {
                     cameraRef.current
                       ?.takePhoto()
                       .then(photo => {

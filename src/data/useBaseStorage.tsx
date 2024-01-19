@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// TODO Names must start with lower case.
 export const useBaseStorage = <T extends unknown>() => {
+  // TODO saveData(key, data)
   const SaveData = async (data: T | T[], key: string): Promise<boolean> => {
     try {
       const jsonValue = JSON.stringify(data);

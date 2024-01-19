@@ -36,10 +36,10 @@ export const AlertPromtModal = ({
         <AlertButton
           icono={iconos.equis}
           color={colores.danger}
-          anyFunction={CloseFunction}></AlertButton>
+          onPress={CloseFunction}></AlertButton>
         <AlertButton
           icono={iconos.visto}
-          anyFunction={OkFunction}></AlertButton>
+          onPress={OkFunction}></AlertButton>
       </View>
     </AlertBaseModal>
   );

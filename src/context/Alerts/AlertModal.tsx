@@ -18,7 +18,7 @@ export const AlertModal = ({
       isVisible={isVisible}
       CloseFunction={CloseFunction}>
       <View style={{alignSelf: 'flex-end', flexDirection: 'row'}}>
-        <AlertButton anyFunction={CloseFunction}></AlertButton>
+        <AlertButton onPress={CloseFunction}></AlertButton>
       </View>
     </AlertBaseModal>
   );

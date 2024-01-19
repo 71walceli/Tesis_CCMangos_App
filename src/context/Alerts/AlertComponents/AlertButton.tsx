@@ -4,20 +4,20 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {colores, iconos, styles} from '../../../theme/appTheme';
 
 interface Props {
-  anyFunction: ((obj?: any) => void) | ((obj?: any) => Promise<void>);
+  onPress: ((obj?: any) => void) | ((obj?: any) => Promise<void>);
   color?: string;
   icono?: string;
 }
 
 export const AlertButton = ({
-  anyFunction,
+  onPress,
   color = colores.success,
   icono = iconos.visto,
 }: Props) => {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => anyFunction()}
+      onPress={() => onPress()}
       style={{
         backgroundColor: color,
         marginTop: 20,

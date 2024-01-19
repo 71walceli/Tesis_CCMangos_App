@@ -109,7 +109,7 @@ export const PlantasScreen = () => {
 
   const plantasFilter = () => {
     // Filtra las plantas que tienen el mismo ID de lote que la ubicación actual
-    const filterPlantas = plantotas.filter(planta => planta.Id_Lote === idLote);
+    const filterPlantas = plantas.filter(planta => planta.Id_Lote === idArea);
 
     return (
       <BaseScreen>
@@ -132,7 +132,7 @@ export const PlantasScreen = () => {
                 <ButtonWithText
                   disabled={valueOT ? true : false || plnt.Disabled}
                   key={plnt.id}
-                  anyfunction={() =>
+                  onPress={() =>
                     elNavegadorMasChulo.dispatch(
                       CommonActions.navigate('LecturaScreen', {plnt}),
                     )

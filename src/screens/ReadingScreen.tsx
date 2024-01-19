@@ -151,22 +151,12 @@ export const ReadingScreen = () => {
           color={colores.primario}
           colorTexto={colores.grisOscuro}
           icon="sync"
-            anyfunction={() =>
-              // ShowAlert('default', {
-              //   message: 'Estamos trabajando en ello',
-              //   title: 'Informacion',
-              // })
+            onPress={() =>
               enviarLecturasAlServidor(lecturasGuardadas)
             }
             title={`Sincronizar`}
           />
         )}
-        {/* {lecturasGuardadas.length < 0 && (
-          <ButtonWithText
-            anyfunction={() => cargarLecturasGuardadas()}
-            title={`Refrescar Pantalla.`}
-          />
-        )} */}
       </View>
     </BaseScreen>
   );

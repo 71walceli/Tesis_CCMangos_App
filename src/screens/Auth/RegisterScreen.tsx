@@ -123,13 +123,13 @@ export const RegisterScreen = () => {
       <ButtonWithText
         width={width * 0.6}
         textSize={18}
-        anyfunction={register}
+        onPress={register}
         icon={iconos.perfil}
         title={'REGISTRAR CUENTA'}></ButtonWithText>
       <ButtonWithText
         width={width * 0.6}
         textSize={18}
-        anyfunction={() => navigation.goBack()}
+        onPress={() => navigation.goBack()}
         icon={iconos.volver}
         title={'REGRESAR'}></ButtonWithText>
     </BaseScreen>

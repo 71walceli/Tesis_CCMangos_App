@@ -35,7 +35,7 @@ export const WelcomeScreen = () => {
         aplicación
       </Text>
       <ButtonWithText
-        anyfunction={askPermission}
+        onPress={askPermission}
         icon={iconos.segurity}
         title={'Dar permisos'}></ButtonWithText>
     </BaseScreen>

@@ -4,8 +4,12 @@ export ANDROID_HOME=~/Android/Sdk
 export PATH=~/Android/Sdk/platform-tools:${PATH}
 
 adb connect 192.168.0.104:55555
-adb shell ls
-yarn start & sleep 3
+attempts=10
+until adb shell ls; do
+    ((attempts--))
+    if ((attempts == 0)); then exit 1; fi
+done
+yarn start & sleep 1
 server_pid=$!
 yarn run android
 wait $server_pid

@@ -319,11 +319,11 @@ export const LecturaScreen = () => {
                   multiline={true}
                 />
                 <View style={{ display: "flex", alignItems: "center" }}>
-                <ButtonWithText
-                  icon={iconos.guardar}
-                  anyfunction={guardar}
-                  title="Guardar"
-                />
+                  <ButtonWithText
+                    icon={iconos.guardar}
+                    onPress={guardar}
+                    title="Guardar"
+                  />
                 </View>
               </View>
             </>
