@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {BaseScreen} from '../Template/BaseScreen';
 import {Text, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Geolotes, IRegion, Plantas} from '../interfaces/ApiInterface';
+import {Geolotes, IRegion, Planta, Plantas} from '../interfaces/ApiInterface';
 import {
   CommonActions,
   useIsFocused,
@@ -13,20 +13,37 @@ import {ButtonWithText} from '../components/ButtonWithText';
 import {LoaderContext} from '../context/LoaderContext';
 import {useBaseStorage} from '../data/useBaseStorage';
 import {colores} from '../theme/appTheme';
+import { CheckInternetContext } from '../context/CheckInternetContext';
+import { ApiEndpoints } from '../api/routes';
+import { arrayIndexer } from '../helpers/utils';
+import { useRequest } from '../api/useRequest';
+import { AuthContext } from '../context/AuthContext';
+
+
+interface IndiceTipos {
+  Plantas: Planta[];
+}
 
 export const PlantasScreen = () => {
   const {params} = useRoute();
-  const {idLote, data, datos} = params as {
-    idLote: number;
+  const {idArea, data, datos} = params as {
+    idArea: number;
     data: Geolotes | undefined;
     datos: IRegion | undefined;
   };
   const isFocused = useIsFocused();
   const {setIsLoading} = useContext(LoaderContext);
-  const {GetData} = useBaseStorage();
+  const {GetData, SaveData} = useBaseStorage();
   const [lecturaRealizada, setLecturaRealizada] = useState<number[]>([]);
   const elNavegadorMasChulo = useNavigation();
-  const [plantotas, setPlantotas] = useState<Plantas[]>([]);
+  
+  const [plantas, setPlantas] = useState<Planta[]>([]);
+  const [Indices, setIndices] = useState<IndiceTipos>()
+  const {hasConection} = useContext(CheckInternetContext);
+  const {getRequest} = useRequest()
+  const {token} = useContext(AuthContext);
+
+  const baseURL = `${ApiEndpoints.BaseURL}${ApiEndpoints.BaseApi}`;
 
   useEffect(() => {
     if (isFocused) {
@@ -39,13 +56,48 @@ export const PlantasScreen = () => {
     }
   }, [isFocused]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      // 1. Los lotes más recientes se asumen de la caché.
+      let _indice: IndiceTipos = {
+        Plantas: [],
+      }
+      try {
+        _indice.Plantas = await GetData<Planta[]>(`Plantas_idArea=${idArea}`)
+        setPlantas(_indice.Plantas)
+      } catch (error) {
+        console.error('Error al cargar los datos desde AsyncStorage:', error);
+      }
+      if (hasConection && token.length > 0) {
+        try {
+          await getRequest<Planta[]>(`${baseURL}${ApiEndpoints.Plantas}?id_area=${idArea}`)
+            .then(data => {
+              data.sort((o1, o2) => o1.id > o2.id ? 1 : -1)
+              _indice.Plantas = data
+              SaveData(data, `Plantas_idArea=${idArea}`)
+              setPlantas(data)
+            });
+        } catch (error) {
+          // Manejar cualquier error que ocurra en geolotes o getPlantas
+          console.error('Error en obtención de plantas desde API:', error);
+        }
+      }
+      Object.entries(_indice).forEach(([key, value]) => {
+        _indice[key] = arrayIndexer((v: typeof value) => v.id, value)
+      })
+      console.log({ _indice })
+      setIndices(_indice)
+    };
+    loadData();
+  }, [hasConection]);
+
   const cargarPlantasGuardadas = async () => {
     try {
       setIsLoading(true);
       const plantasGuardadas = await AsyncStorage.getItem('Plantas');
       if (plantasGuardadas) {
-        const lotes: Plantas[] = JSON.parse(plantasGuardadas);
-        setPlantotas(lotes);
+        const plantas: Planta[] = JSON.parse(plantasGuardadas);
+        setPlantas(plantas);
       } else {
         console.log('No se encontraron platas guardados en AsyncStorage');
       }
@@ -69,9 +121,9 @@ export const PlantasScreen = () => {
           }}>
           {datos?.Cod || data?.CodigoLote}
         </Text>
-        {filterPlantas.length > 0 ? (
+        {plantas.length > 0 ? (
           <View>
-            {filterPlantas.map(plnt => {
+            {plantas.map(plnt => {
               const valueOT = lecturaRealizada
                 ? lecturaRealizada.includes(plnt.id)
                 : false;

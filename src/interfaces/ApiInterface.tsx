@@ -75,24 +75,43 @@ export interface GlobalLecturas {
   Fecha_Visita: string;
 }
 
-export interface Geolotes {
+export interface Lote {
   id: number;
-  FillColor: string;
+  Id_Proyecto: number;
+  Codigo_Lote: string;
+  Nombre: string;
+  Variedad: string;
+  Hectareas: number;
   Activo: boolean;
-  Usuario: string;
-  Id_Lote: number;
-  Lote: string;
-  CodigoLote: string;
-  geocoordenadas: Geocoordenada[];
+  Usuario: number;
+  Areas: number[];
+  Poligonos: number[];
 }
 
-export interface Geocoordenada {
+export interface Area {
+  Id_Lote: number;
   id: number;
+  Codigo_Area: string;
+  Nombre: string;
+  Variedad: string;
+  Hectareas: number;
+  Activo: boolean;
+  Usuario: number;
+  Plantas: number[];
+  Poligonos: number[];
+}
+
+export interface Planta {
+  id: number;
+  Id_Area: number;
+  Codigo_Planta: string;
+  Nombre: string;
+  Circunferencia: number;
+  Activo: boolean;
   lat: number;
   lng: number;
-  Activo: boolean;
-  Usuario: string;
-  Id_Poligono: number;
+  VisibleToStudent: boolean;
+  Disabled: boolean;
 }
 
 export interface Plantas {
@@ -103,7 +122,28 @@ export interface Plantas {
   Activo: boolean;
   Id_Lote: number;
 }
-// GET: /api/auth/porfile/
+
+export interface Geolotes {
+  id: number;
+  FillColor: string;
+  Activo: boolean;
+  Usuario: number;
+  Id_Lote: number;
+  Id_Area: number;
+  Lote: string;
+  CodigoLote: string;
+  geocoordenadas: Geocoordenada[];
+}
+
+export interface Geocoordenada {
+  id: number;
+  lat: number;
+  lng: number;
+  Activo: boolean;
+  Usuario: number;
+  Id_Poligono: number;
+}
+
 export interface Porfile {
   cedula: string;
   username: string;

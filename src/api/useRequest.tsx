@@ -50,6 +50,7 @@ export const useRequest = () => {
     ShowAlertApiError(error);
     console.error({
       cause: error.cause,
+      statusCode: error.status,
       response: error.response?.data,
       code: error.code,
       message: error.message,

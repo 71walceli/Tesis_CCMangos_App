@@ -5,6 +5,7 @@ import {TextInput} from 'react-native-paper';
 import {colores, iconos} from '../theme/appTheme';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+
 interface Props {
   placeholder: string;
   color?: string;

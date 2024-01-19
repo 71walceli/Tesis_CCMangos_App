@@ -304,10 +304,6 @@ export const LecturaScreen = () => {
                             })
                           }}
                         />
-                        {/* <Checkbox.IOS
-                          status={lectura.Enfermedades.includes(e) ? "checked" : "unchecked"}
-                          //status={lectura.Enfermedades.includes(e)}
-                        /> */}
                       </View>
                     ) )}
                   </Card.Content>
@@ -320,23 +316,19 @@ export const LecturaScreen = () => {
                   onChange={value => {
                     setLectura({ ...lectura, Observacion: value });
                   }}
+                  multiline={true}
                 />
+                <View style={{ display: "flex", alignItems: "center" }}>
                 <ButtonWithText
                   icon={iconos.guardar}
                   anyfunction={guardar}
                   title="Guardar"
                 />
+                </View>
               </View>
             </>
           ) : (
             <>
-              {/* {__DEV__ && (
-                <ButtonWithText
-                  anyfunction={eliminarCatalogosDeMemoria}
-                  title="Eliminar Local"
-                  icon='trash'
-                />
-              )} */}
             </>
           )}
         </Card.Content>

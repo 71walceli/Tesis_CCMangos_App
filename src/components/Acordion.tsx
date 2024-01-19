@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {CSSProperties, useState} from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,19 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import {colores, iconos, styles} from '../theme/appTheme';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+
 interface AccordionProps {
   title: string;
   children: React.ReactNode;
+  titleStyle: CSSProperties;
+  innerStyle: CSSProperties;
+  expanded: Boolean;
 }
 
-export const Accordion = ({title, children}: AccordionProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const Accordion = ({title, children, titleStyle, innerStyle, expanded}: AccordionProps) => {
+  const [isExpanded, setIsExpanded] = useState(expanded || false);
   const [animation] = useState(new Animated.Value(0));
   const {width} = useWindowDimensions();
 
@@ -36,11 +42,11 @@ export const Accordion = ({title, children}: AccordionProps) => {
         activeOpacity={0.8}
         style={{flexDirection: 'row'}}
         onPress={toggleAccordion}>
-        <Text style={{...AcordionStyles.header, fontSize: width * 0.05}}>
-          {title}
+        <Text style={{...AcordionStyles.header, fontSize: 16, ...titleStyle}}>
+          {title} {<Icon name={isExpanded ? iconos.arriba : iconos.abajo} size={16} />}
         </Text>
       </TouchableOpacity>
-      {isExpanded && <View style={AcordionStyles.content}>{children}</View>}
+      {isExpanded && <View style={{...AcordionStyles.content, ...innerStyle}}>{children}</View>}
     </View>
   );
 };
@@ -74,7 +80,7 @@ const AcordionStyles = StyleSheet.create({
   },
   content: {
     width: '90%',
-    maxHeight: 320,
+    //maxHeight: 320,
     ...styles.centerItems,
     padding: 4,
     backgroundColor: colores.LocationBg,

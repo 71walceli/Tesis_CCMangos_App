@@ -3,19 +3,19 @@ import {TouchableOpacity, Text} from 'react-native';
 import {colores, styles} from '../theme/appTheme';
 interface Props {
   title: string;
-  anyfunction: () => void;
+  onPress: () => void;
   color?: string;
 }
 export const TextButton = ({
   title,
-  anyfunction,
+  onPress,
   color = colores.secundario,
 }: Props) => {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       style={{marginVertical: '1%'}}
-      onPress={() => anyfunction()}>
+      onPress={() => onPress()}>
       <Text style={{...styles.textButton, color: color}}>{title}</Text>
     </TouchableOpacity>
   );
