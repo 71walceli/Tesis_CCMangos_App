@@ -2,7 +2,7 @@ import React, { useRef, useState} from 'react';
 import {StyleSheet, View, Text, AppState} from 'react-native';
 import {useIsFocused, useRoute} from '@react-navigation/native';
 import {BaseScreen} from '../Template/BaseScreen';
-import {Plantas} from '../interfaces/ApiInterface';
+import {IPlantas} from '../../../Common/interfaces/models';
 import {colores, styles} from '../theme/appTheme';
 import {Card, RadioButton} from 'react-native-paper';
 import {useWindowDimensions} from 'react-native';
@@ -13,11 +13,12 @@ import {moveFile, ExternalStorageDirectoryPath, mkdir} from 'react-native-fs';
 import {extname} from 'path';
 import Toast from 'react-native-toast-message';
 
+
 export const FotoPlantaScreen = () => {
   const {params} = useRoute();
   const {width} = useWindowDimensions();
   const {plnt} = params as {
-    plnt: Plantas;
+    plnt: IPlantas;
   };
   const [lado, setLado] = useState<'A' | 'B'>('A');
   const camDevice = useCameraDevice('back');

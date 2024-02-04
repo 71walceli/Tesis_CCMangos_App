@@ -4,8 +4,9 @@ import {LoaderContext} from '../context/LoaderContext';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiErrorResponse} from '../interfaces/BaseApiInterface';
 import {AuthContext} from '../context/AuthContext';
-import {ApiEndpoints} from './routes';
+import { Endpoints } from '../../../Common/api/routes';
 import { printStackTrace } from '../helpers/utils';
+
 
 export const useRequest = () => {
   const {ShowAlertApiError} = useContext(AlertContext);
@@ -16,7 +17,7 @@ export const useRequest = () => {
   const {token} = useContext(AuthContext);
   // Create an axios instance for the token endpoint
   const ApiTokenRequest = axios.create({
-    baseURL: ApiEndpoints.BaseURL + ApiEndpoints.Token,
+    baseURL: Endpoints.BaseURL,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
@@ -25,7 +26,7 @@ export const useRequest = () => {
 
   // Create an axios instance for the other endpoints
   const ApiRequest = axios.create({
-    baseURL: ApiEndpoints.BaseURL + ApiEndpoints.BaseApi,
+    baseURL: Endpoints.BaseURL,
     headers: {
       'Content-Type': 'application/json',
       ...(token && token.length > 0 !== undefined
@@ -34,7 +35,7 @@ export const useRequest = () => {
     },
   });
   const ApiPostFileRequest = axios.create({
-    baseURL: ApiEndpoints.BaseURL + ApiEndpoints.BaseApi,
+    baseURL: Endpoints.BaseURL,
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
@@ -64,12 +65,12 @@ export const useRequest = () => {
     params?: object,
     isLoading?: boolean,
   ): Promise<T> => {
-    setIsLoading(isLoading === true ? true : false);
+    isLoading && setIsLoading(true);
     return await ApiRequest.get(endpoint, {params})
       .then(({data}: AxiosResponse<T>) => data)
       .catch(handleApiError)
       .finally(() => {
-        setIsLoading(false);
+        isLoading && setIsLoading(false);
       });
   };
 

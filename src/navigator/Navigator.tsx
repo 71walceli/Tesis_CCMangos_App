@@ -71,77 +71,74 @@ export const Navigator = () => {
             <WelcomeScreen></WelcomeScreen>
           ) : (
             <>
-              {/* <MenuLateral></MenuLateral> */}
-              <>
-                <Stack.Navigator
-                  screenOptions={{
-                    headerShown: true,
-                    headerStyle: {
-                      backgroundColor: colores.azul,
-                    },
-                    headerTintColor: colores.blanco,
-                    cardStyle: {
-                      backgroundColor: colores.plomoclaro,
-                    },
-                  }}>
-                  <Stack.Screen
-                    name="Tabs"
-                    component={Tabs}
-                    options={{
-                      header: prop => <DrawerHeader title={''}></DrawerHeader>,
-                    }}
-                  />
+              <Stack.Navigator
+                screenOptions={{
+                  headerShown: true,
+                  headerStyle: {
+                    backgroundColor: colores.azul,
+                  },
+                  headerTintColor: colores.blanco,
+                  cardStyle: {
+                    backgroundColor: colores.plomoclaro,
+                  },
+                }}>
+                <Stack.Screen
+                  name="Tabs"
+                  component={Tabs}
+                  options={{
+                    header: prop => <DrawerHeader title={''}></DrawerHeader>,
+                  }}
+                />
 
-                  <Stack.Screen
-                    name="NextScreen"
-                    component={MainScreen}
-                    options={{
-                      header: props => (
-                        <StackHeader title={'NextScreen'}></StackHeader>
-                      ),
-                    }}
-                  />
-                  <Stack.Screen
-                    name="LecturaScreen"
-                    component={LecturaScreen}
-                    options={{
-                      header: props => (
-                        <StackHeader title={'Ingresar Lectura'}></StackHeader>
-                      ),
-                    }}
-                  />
-                  <Stack.Screen
-                    name="FotoPlantaScreen"
-                    component={FotoPlantaScreen}
-                    options={{
-                      header: props => (
-                        <StackHeader title={'Tomar Foto'}></StackHeader>
-                      ),
-                    }}
-                  />
-                  <Stack.Screen
-                    name="ReadingScreen"
-                    component={ReadingScreen}
-                    options={{
-                      header: props => (
-                        <StackHeader title={'Ver Lecturas'}></StackHeader>
-                      ),
-                    }}
-                  />
-                  <Stack.Screen
-                    name="PlantasScreen"
-                    component={PlantasScreen}
-                    options={{
-                      header: (props: any) => (
-                        <StackHeader
-                          title={`${
-                            props.route.params?.title ?? ''
-                          } Information`}></StackHeader>
-                      ),
-                    }}
-                  />
-                </Stack.Navigator>
-              </>
+                <Stack.Screen
+                  name="MainScreen"
+                  component={MainScreen}
+                  options={{
+                    header: props => (
+                      <StackHeader title={'MainScreen'}></StackHeader>
+                    ),
+                  }}
+                />
+                <Stack.Screen
+                  name="LecturaScreen"
+                  component={LecturaScreen}
+                  options={{
+                    header: props => (
+                      <StackHeader title={'Ingresar Lectura'}></StackHeader>
+                    ),
+                  }}
+                />
+                <Stack.Screen
+                  name="FotoPlantaScreen"
+                  component={FotoPlantaScreen}
+                  options={{
+                    header: props => (
+                      <StackHeader title={'Tomar Foto'}></StackHeader>
+                    ),
+                  }}
+                />
+                <Stack.Screen
+                  name="ReadingScreen"
+                  component={ReadingScreen}
+                  options={{
+                    header: props => (
+                      <StackHeader title={'Ver Lecturas'}></StackHeader>
+                    ),
+                  }}
+                />
+                <Stack.Screen
+                  name="PlantasScreen"
+                  component={PlantasScreen}
+                  options={{
+                    header: (props: any) => (
+                      <StackHeader
+                        title={`${
+                          props.route.params?.title ?? ''
+                        } Information`}></StackHeader>
+                    ),
+                  }}
+                />
+              </Stack.Navigator>
             </>
           )}
         </>

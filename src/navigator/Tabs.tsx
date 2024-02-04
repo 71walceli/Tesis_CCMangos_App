@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Platform} from 'react-native';
 import {iconos} from '../theme/appTheme';
 import {colores} from '../theme/appTheme';
@@ -10,16 +10,17 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {PerfilScreen} from '../screens/PerfilScreen';
 
+
 const TabOptions = [
   {
     name: 'HomeScreen',
-    title: 'Inicio',
+    title: 'Producción',
     icon: iconos.home,
     component: MainScreen,
   },
   {
     name: 'Lecturs',
-    title: 'Lecturas',
+    title: 'Sincronización',
     icon: iconos.ordenDeTrabajo,
     component: ReadingScreen,
   },

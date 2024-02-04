@@ -7,5 +7,14 @@ module.exports = {
         relativeSourceLocation: true,
       },
     ],
+    "transform-inline-environment-variables",
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "@common": "/Common"
+        }
+      }
+    ]
   ],
 };

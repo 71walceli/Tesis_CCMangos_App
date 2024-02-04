@@ -1,18 +1,19 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {BaseScreen} from '../Template/BaseScreen';
 import {Text, View, StyleSheet, useWindowDimensions} from 'react-native';
-import {GlobalLecturas} from '../interfaces/ApiInterface';
+import {ILectura} from '../interfaces/ApiInterface';
 import {List} from '../components/List';
 import {colores, iconos, styles} from '../theme/appTheme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {LoaderContext} from '../context/LoaderContext';
 import {sleep} from '../helpers/sleep';
 import {useRequest} from '../api/useRequest';
-import {ApiEndpoints} from '../api/routes';
+import {Endpoints} from '../../../Common/api/routes';
 import {ButtonWithText} from '../components/ButtonWithText';
 import {CheckInternetContext} from '../context/CheckInternetContext';
 import {AlertContext} from '../context/AlertContext';
 import {useNavigation} from '@react-navigation/native';
+
 
 export const ReadingScreen = () => {
   const {postRequest} = useRequest();
@@ -21,7 +22,7 @@ export const ReadingScreen = () => {
   const {ShowAlert} = useContext(AlertContext);
   const {setIsLoading} = useContext(LoaderContext);
   const {hasConection} = useContext(CheckInternetContext);
-  const [lecturasGuardadas, setLecturasGuardadas] = useState<GlobalLecturas[]>(
+  const [lecturasGuardadas, setLecturasGuardadas] = useState<ILectura[]>(
     [],
   );
 
@@ -52,7 +53,7 @@ export const ReadingScreen = () => {
     try {
       const lecturasExistentes = await AsyncStorage.getItem('LecturasLocal');
       if (lecturasExistentes) {
-        const lecturasExistentesArray: GlobalLecturas[] =
+        const lecturasExistentesArray: ILectura[] =
           JSON.parse(lecturasExistentes);
 
         setLecturasGuardadas(lecturasExistentesArray);
@@ -69,8 +70,8 @@ export const ReadingScreen = () => {
     setIsLoading(false);
   };
 
-  const renderLecturas = (lectura: GlobalLecturas) => {
-    // Itera a través de las propiedades del objeto GlobalLecturas y muestra sus valores
+  const renderLecturas = (lectura: ILectura) => {
+    // Itera a través de las propiedades del objeto ILectura y muestra sus valores
     return (
       <View style={{...lecturasStyles.rutaContainer, width: width * 0.8}}>
         <View key={lectura.Id_Planta} style={{flexDirection: 'column'}}>
@@ -86,12 +87,12 @@ export const ReadingScreen = () => {
       </View>
     );
   };
-  const enviarLecturasAlServidor = async (lecturas: GlobalLecturas[]) => {
+  const enviarLecturasAlServidor = async (lecturas: ILectura[]) => {
     try {
       for (const lectura of lecturas) {
         // Mapea las propiedades de lectura correctamente
         console.log('lECTURA', JSON.stringify(lectura, null, 3));
-        const lecturaParaEnviar = {
+        const lecturaParaEnviar: ILectura = {
           Id_Planta: lectura.Id_Planta,
           E1: lectura.E1 || 0,
           E2: lectura.E2 || 0,
@@ -109,12 +110,12 @@ export const ReadingScreen = () => {
           FechaVisita: lectura.Fecha_Visita,
         };
         // Hacer la solicitud al servidor para guardar la lectura
-        await postRequest(ApiEndpoints.Lectura, lecturaParaEnviar)
+        await postRequest(Endpoints.Lectura, lecturaParaEnviar)
           .then(async () => {
             const lecturasExistentes =
               await AsyncStorage.getItem('LecturasLocal');
             if (lecturasExistentes) {
-              const lecturasExistentesArray: GlobalLecturas[] =
+              const lecturasExistentesArray: ILectura[] =
                 JSON.parse(lecturasExistentes);
               // Encuentra y elimina la lectura que coincida con la lectura enviada
               const lecturasActualizadas = lecturasExistentesArray.filter(

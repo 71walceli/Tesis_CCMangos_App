@@ -1,22 +1,22 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Checkbox } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BaseScreen } from '../Template/BaseScreen';
-import { GlobalLecturas, Plantas } from '../interfaces/ApiInterface';
+import { IEnfermedad, ILectura, IPlantas, IProfile } from "../../../Common/interfaces/models";
 import { colores, iconos, styles } from '../theme/appTheme';
 import { InputForm } from '../components/InputForm';
 import { Card, List } from 'react-native-paper';
 import { useWindowDimensions } from 'react-native';
-import { TextButton } from '../components/TextButton';
 import { ButtonWithText } from '../components/ButtonWithText';
 import { AlertContext } from '../context/AlertContext';
 import { CheckInternetContext } from '../context/CheckInternetContext';
 import { useRequest } from '../api/useRequest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ApiEndpoints } from '../api/routes';
+import { Endpoints } from '../../../Common/api/routes';
 import { useBaseStorage } from '../data/useBaseStorage';
 import { StackHeader } from '../navigator/StackHeader';
 import Icon from 'react-native-vector-icons/Ionicons';
+
 
 export const LecturaScreen = () => {
   const route = useRoute();
@@ -28,7 +28,7 @@ export const LecturaScreen = () => {
   const [paginado, setPaginado] = useState<number>(0);
   const { hasConection } = useContext(CheckInternetContext);
   const { plnt } = route.params as {
-    plnt: Plantas;
+    plnt: IPlantas;
   };
   const defaultFormLectura = () => ({
     CantidadInflorescencias: "",
@@ -40,10 +40,10 @@ export const LecturaScreen = () => {
     FechaVisita: '',
   })
   // TODO Load from API
-  const [enfermedades, setEnfermedades] = useState()
+  const [enfermedades, setEnfermedades] = useState<IEnfermedad[]>()
   const [lectura, setLectura] = useState(defaultFormLectura());
 
-  const [allLecturas, setAllLecturas] = useState<GlobalLecturas[]>([]);
+  const [allLecturas, setAllLecturas] = useState<ILectura[]>([]);
 
   const generateFecha = () => {
     const dates = new Date().toISOString();
@@ -59,11 +59,15 @@ export const LecturaScreen = () => {
     // TODO Cargar desde LocalStorage
     
     const cargarLocalmente = () => AsyncStorage.getItem("enfermedades")
-      .then(data => JSON.parse(data))
+      .then(data => {
+        if (data)
+          return JSON.parse(data);
+        throw new Error("Sin datos")
+      })
       .catch(() => [])
 
     if (hasConection) {
-      getRequest(ApiEndpoints.Enfermedad)
+      getRequest<IEnfermedad[]>(Endpoints.enfermedad)
         .then(data => {
           setEnfermedades(data);
           AsyncStorage.setItem("enfermedades", JSON.stringify(data))
@@ -77,12 +81,12 @@ export const LecturaScreen = () => {
   }, []);
 
   const guardarLecturasEnLocal = async (
-    lecturas: GlobalLecturas[],
+    lecturas: ILectura[],
   ): Promise<boolean> => {
     try {
       // Obtén las lecturas existentes en "LecturasLocal" (si las hay)
       const lecturasExistentes = await AsyncStorage.getItem('LecturasLocal');
-      let lecturasExistentesArray: GlobalLecturas[] = lecturasExistentes
+      let lecturasExistentesArray: ILectura[] = lecturasExistentes
         ? JSON.parse(lecturasExistentes)
         : [];
 
@@ -106,19 +110,6 @@ export const LecturaScreen = () => {
     }
   };
 
-  const eliminarCatalogosDeMemoria = async () => {
-    try {
-      await AsyncStorage.removeItem('LecturasLocal');
-    } catch (error) {
-      console.error(error);
-      ShowAlert('default', {
-        title: 'Error',
-        message:
-          'Ocurrió un error al intentar eliminar los datos del grupo "catalogos".',
-      });
-    }
-  };
-
   const plantaRegisterValue = (idPlanta: number) => {
     console.log(idPlanta);
     GetData<number[]>('OTRealizado')
@@ -133,16 +124,17 @@ export const LecturaScreen = () => {
 
   const guardar = async () => {
     try {
-      const nuevaLectura = {
+      const nuevaLectura: ILectura = {
         Id_Planta: plnt.id,
-        planta: plnt.Codigo_Planta,
+        Id_Usuario: (JSON.parse(await AsyncStorage.getItem("Usuario") || "") as IProfile).user,
         CantidadInflorescencias: Number(lectura.CantidadInflorescencias),
         CantidadFrutonIniciales: Number(lectura.CantidadFrutonIniciales),
         CantidadFrutosMaduración: Number(lectura.CantidadFrutosMaduración),
         CantidadInflorescenciasPerdidas: Number(lectura.CantidadInflorescenciasPerdidas),
         Enfermedades: lectura.Enfermedades,
         Observacion: lectura.Observacion,
-        FechaVisita: lectura.FechaVisita,
+        FechaVisita: new Date(),
+        Activo: true,
         SyncId: Date.now().toString(36) + Math.random().toString(36).substring(2),
       };
 
@@ -153,7 +145,7 @@ export const LecturaScreen = () => {
       }));
 
       if (hasConection) {
-        await postRequest(ApiEndpoints.Lectura, { ...nuevaLectura })
+        await postRequest(Endpoints.Lectura, nuevaLectura)
           .then(async () => {
             plantaRegisterValue(plnt.id)
             ShowAlert('default', {
@@ -223,15 +215,6 @@ export const LecturaScreen = () => {
           width: width * 0.9,
           ...styles.centerItems,
         }}>
-        {/* <Card.Title
-          style={{
-            ...stylesComprasGastos.titulo,
-            width: width * 0.8,
-            ...styles.centerItems,
-          }}
-          title={plnt.Nombre}
-          titleStyle={{...stylesComprasGastos.title, fontSize: width * 0.055}}
-        /> */}
         <Card.Title
           style={{
             ...stylesComprasGastos.titulo,

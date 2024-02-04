@@ -2,6 +2,7 @@ import React, {createContext, useState} from 'react';
 import {Modal} from 'react-native';
 import {LoadingModal} from './Loader/LoadingModal';
 
+
 type LoaderContextProps = {
   setIsLoading: (isLoading: boolean) => void;
   isLoading: boolean;
@@ -18,7 +19,7 @@ export const LoaderProvider = ({children}: any) => {
         setIsLoading,
         isLoading,
       }}>
-      {children}
+        {children}
       <Modal visible={isLoading} transparent animationType="fade">
         <LoadingModal></LoadingModal>
       </Modal>

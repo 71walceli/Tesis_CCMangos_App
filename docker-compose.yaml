@@ -6,6 +6,8 @@ services:
     environment:
       TZ: America/Guayaquil
       DISPLAY: $DISPLAY
+      ADB_ENDPOINT: 192.168.0.104:55555
+      API_BASE_URL: http://django:8080/api/
     entrypoint: bash ./boot.sh
     #entrypoint: yarn run android
     group_add: 
@@ -17,5 +19,6 @@ services:
       - .:/Project
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./Data:/home/AndroidStudio
+      - ../Common:/Common
     working_dir: /Project
 

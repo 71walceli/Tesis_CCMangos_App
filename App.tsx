@@ -9,15 +9,15 @@ import {AlertProvider} from './src/context/AlertContext';
 import Toast from 'react-native-toast-message';
 import {CheckInternetProvider} from './src/context/CheckInternetContext';
 
-//#region AppState
 
+//#region AppState
 const AppState = ({children}: {children: JSX.Element | JSX.Element[]}) => {
   return (
     <CheckInternetProvider>
       <LoaderProvider>
         <AlertProvider>
           <PermissionsProvider>
-              <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>{children}</AuthProvider>
           </PermissionsProvider>
         </AlertProvider>
       </LoaderProvider>
@@ -28,10 +28,6 @@ const AppState = ({children}: {children: JSX.Element | JSX.Element[]}) => {
 //#endregion
 
 const App = () => {
-  /*  useEffect(() => {
-    SplashScreen.hide(); //hides the splash screen on app load.
-  }, []); */
-
   const MyTheme = {
     ...DefaultTheme,
     dark: false,

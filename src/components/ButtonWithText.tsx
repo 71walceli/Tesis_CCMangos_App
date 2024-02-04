@@ -53,7 +53,6 @@ export const ButtonWithText = ({
         flexDirection: 'row',
         borderRadius: radio,
         width,
-        //...styles.sombra,
       }}>
       {icon.length > 0 && (
         <View

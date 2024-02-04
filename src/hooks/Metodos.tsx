@@ -1,15 +1,17 @@
 import {useContext, useState} from 'react';
-import {Geolotes, Plantas, Porfile} from './../interfaces/ApiInterface';
+import {IPoligonos, IPlantas, IProfile} from './../interfaces/ApiInterface';
 import {useRequest} from '../api/useRequest';
-import {ApiEndpoints} from '../api/routes';
+import {Endpoints} from '../../../Common/api/routes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {AuthContext} from '../context/AuthContext';
 import {CheckInternetContext} from '../context/CheckInternetContext';
+
+
 export const Metodos = () => {
   const {getRequest} = useRequest();
-  const [poligonos, setPoligonos] = useState<Geolotes[]>([]);
-  const [plantas, setPlantas] = useState<Plantas[]>([]);
-  const [profile, setProfile] = useState<Porfile>();
+  const [poligonos, setPoligonos] = useState<IPoligonos[]>([]);
+  const [plantas, setPlantas] = useState<IPlantas[]>([]);
+  const [profile, setProfile] = useState<IProfile>();
   const {token} = useContext(AuthContext);
   const {hasConection} = useContext(CheckInternetContext);
 
@@ -42,8 +44,8 @@ export const Metodos = () => {
     return contador % 2 === 1;
   };
 
-  const geolotes = async (): Promise<Geolotes[]> => {
-    return await getRequest<Geolotes[]>(ApiEndpoints.Poligonos).then(
+  const geolotes = async (): Promise<IPoligonos[]> => {
+    return await getRequest<IPoligonos[]>(Endpoints.Poligonos).then(
       async lotes => {
         setPoligonos(lotes);
         await AsyncStorage.setItem('GeoLotes', JSON.stringify(lotes)).catch(e =>
@@ -55,7 +57,7 @@ export const Metodos = () => {
   };
   const getPlantas = async () => {
     hasConection && token
-      ? await getRequest<Plantas[]>(ApiEndpoints.Plantas).then(
+      ? await getRequest<IPlantas[]>(Endpoints.Plantas).then(
           async plantas => {
             setPlantas(plantas);
             await AsyncStorage.setItem(
@@ -70,7 +72,7 @@ export const Metodos = () => {
   const getPorfile = async () => {
     console.log(token)
     hasConection && token
-      ? await getRequest<Porfile>(ApiEndpoints.perfil, undefined, false)
+      ? await getRequest<IProfile>(Endpoints.perfil, undefined, false)
           .then(setProfile)
           .catch(() => setProfile(undefined))
       : () => {};

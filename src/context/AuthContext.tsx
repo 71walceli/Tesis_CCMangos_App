@@ -4,8 +4,10 @@ import {AlertContext} from './AlertContext';
 import {sleep} from '../helpers/sleep';
 import {useStorage} from '../data/useStorage';
 import {useRequest} from '../api/useRequest';
-import {TokenResponse} from '../interfaces/BaseApiInterface';
-import {ApiEndpoints} from '../api/routes';
+import {TokenResponse} from '../../../Common/interfaces/models';
+import {Endpoints} from '../../../Common/api/routes';
+import { useBaseStorage } from '../data/useBaseStorage';
+
 
 type AuthContextProps = {
   status: StatusTypes;
@@ -26,20 +28,16 @@ export const AuthProvider = ({children}: any) => {
   const {postRequest} = useRequest();
   const [status, setstatus] = useState<StatusTypes>('checking');
   const [token, setToken] = useState<string>('');
+  const {SaveData} = useBaseStorage()
 
   useEffect(() => {
     checkToken();
-    /* AppState.addEventListener('change', state => {
-      if (state !== 'active') return;
-      checkVersionApp();
-    }); */
   }, []);
 
   /**
    * Checks if there is a token in local storage and attempts to authenticate with it
    * @returns void
    */
-
   const checkToken = async (): Promise<void> => {
     await sleep(1);
     await CheckJWTInfo().then(check =>
@@ -54,63 +52,8 @@ export const AuthProvider = ({children}: any) => {
     );
   };
 
-  /*   const checkVersionApp = async () => {
-    setIsFetching(true);
-    await ApiRequest.get(ApiEndpoints.ValidarVersion, {
-      params: {
-        version: DeviceInfo.getVersion(),
-      },
-    })
-      .then(({data}: AxiosResponse) => {})
-      .catch(({response}: AxiosError<any>) => {
-        ShowAlert('default', {
-          title: 'Error',
-          message:
-            response === undefined
-              ? 'Verifique su conexión a Internet'
-              : response!.data.Message === undefined
-              ? 'Ocurrio un error en la consulta'
-              : response!.data.Message,
-        });
-        logOut();
-      })
-      .finally(() => {
-        setIsFetching(false);
-      });
-  }; */
-
-  /*   const signIn = async ({correo, password}: LoginData) => {
-    // Function to login
-    if (correo.length === 0 || password.length === 0) {
-      // If email or password not exist
-      ShowAlert('default', {
-        title: 'Error',
-        message: 'Debe llenar los campos requeridos',
-      });
-      return;
-    }
-    const dataUsuario = queryString.stringify({
-      // Stringify data
-      grant_type: 'password',
-      username: correo,
-      password: password,
-    });
-    await postRequestToken<TokenResponse>(dataUsuario)
-      .then(({access_token}) => {
-        setstatus('authenticated');
-        if (access_token) {
-          SaveToken(access_token); // Save token in asyncstorage
-          settoken(access_token); // Set token in context
-        }
-      })
-      .catch(() => {});
-  };
- */
-
   const signIn = async ({correo, password}: LoginData) => {
-    // Function to login
     if (correo.length === 0 || password.length === 0) {
-      // If email or password not exist
       ShowAlert('default', {
         title: 'Error',
         message: 'Debe llenar los campos requeridos',
@@ -118,27 +61,19 @@ export const AuthProvider = ({children}: any) => {
       return;
     }
 
-    await postRequest<TokenResponse>(ApiEndpoints.login, {
+    await postRequest<TokenResponse>(Endpoints.login, {
       username: correo,
       password,
     })
       .then(jwtInfo => {
         setstatus('authenticated');
         SaveJWTInfo(jwtInfo.access_token);
-        //startConnection(jwtInfo.token, jwtInfo.userName);
+        SaveData(jwtInfo.usuario, "Usuario")
       })
-      .catch(console.log);
+      .catch(console.error);
   };
 
-  const signUp = async ({
-    email,
-    password,
-    cedula,
-    first_name,
-    last_name,
-    username,
-  }: CreateUser) => {
-    // Function to login
+  const signUp = async ({ email, password, cedula, first_name, last_name, username, }: CreateUser) => {
     if (
       email.length === 0 ||
       password.length === 0 ||
@@ -155,7 +90,7 @@ export const AuthProvider = ({children}: any) => {
       return;
     }
 
-    await postRequest(ApiEndpoints.register, {
+    await postRequest(Endpoints.register, {
       username,
       password,
       last_name,
