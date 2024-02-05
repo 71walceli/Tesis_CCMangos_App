@@ -8,6 +8,8 @@ services:
       DISPLAY: $DISPLAY
       ADB_ENDPOINT: 192.168.0.104:55555
       API_BASE_URL: http://django:8080/api/
+      DEFAULT_USERNAME: walecel
+      DEFAULT_PASSWORD: p4s5w0rD
     entrypoint: bash ./boot.sh
     #entrypoint: yarn run android
     group_add: 
