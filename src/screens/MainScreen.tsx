@@ -17,6 +17,7 @@ import { useBaseStorage } from '../data/useBaseStorage';
 import { arrayIndexer } from '../helpers/utils';
 import { Accordion } from '../components/Acordion';
 import { LoaderContext } from '../context/LoaderContext';
+import { useLocationController } from '../hooks/useLocationController';
 
 
 interface IndiceTipos {
@@ -33,14 +34,14 @@ export const MainScreen = () => {
   const {token} = useContext(AuthContext);
   const {geolotes, pointInRegion, getPlantas} = Metodos();
   const {hasConection} = useContext(CheckInternetContext);
-  const [Indices, setIndices] = useState<IndiceTipos>([]);
+  const [Indices, setIndices] = useState<IndiceTipos>({});
   const [Polígonos, setPolígonos] = useState<IPoligonos[]>([]);
   const [Areas, setAreas] = useState<IArea[]>([]);
   const [Lotes, setLotes] = useState<ILote[]>([]);
   const [filtrado, setFiltrado] = useState<IPoligonos[]>([]);
   const [location, setLocation] = useState<ILocation | null>(null);
 
-  useEffect(() => {
+  useEffect(() => { // Data loading
     const loadData = async () => {
       setIsLoading(true)
       // 1. Los lotes más recientes se asumen de la caché.
@@ -91,57 +92,70 @@ export const MainScreen = () => {
       Object.entries(_indice).forEach(([key, value]) => {
         _indice[key] = arrayIndexer((v: typeof value) => v.id, value)
       })
-      console.log(_indice)
       setIndices(_indice)
       setIsLoading(false)
     };
     loadData();
   }, [hasConection]);
 
-  const getLocation = () => {
-    Geolocation.getCurrentPosition(
-      async position => {
+  const LOCATION_UPDATE_INTERVAL = 15000
+  const {getLocation} = useLocationController(
+    {
+      enableHighAccuracy: true, 
+      timeout: LOCATION_UPDATE_INTERVAL, 
+      maximumAge: 10000
+    },
+    /* {
+      coords: {
+        latitude: -2.1260429,
+        longitude: -79.9876802,
+      }
+    } */
+  )
+  const updateLocation = () => {
+    getLocation()
+      .then(position => {
         const locationData: any = position.coords;
         // Filtrar los polígonos basados en la ubicación actual
-        const filteredPoligonos = Polígonos.filter(item =>
-          pointInRegion(
-            locationData.latitude,
-            locationData.longitude,
-            item.geocoordenadas.map((item: any) => ({
-              longitude: parseFloat(item.lng),
-              latitude: parseFloat(item.lat),
-            })),
-          ),
-        );
+        const filteredPoligonos = Polígonos
+          .filter(item => item.Id_Area )
+          .filter(item =>
+            pointInRegion(
+              locationData.latitude,
+              locationData.longitude,
+              item.geocoordenadas.map((item: any) => ({
+                longitude: parseFloat(item.lng),
+                latitude: parseFloat(item.lat),
+              })),
+            ),
+          );
         // Mapear los polígonos filtrados a un arreglo de objetos
-        const regionData = filteredPoligonos.map(item => ({
-          Lote: item.Lote,
-          Id: item.Id_Lote,
-          Cod: item.CodigoLote,
-        }));
+        const regionData = filteredPoligonos.map(item => {
+          return ({
+            Id_Area: item.Id_Area,
+            Id_Lote: item.Id_Lote,
+            Cod: item.CodigoLote,
+          });
+        });
         // Asignar la propiedad 'region' en locationData con los datos mapeados
         locationData.region = regionData;
 
         // Actualizar el estado con los datos de ubicación
         setLocation(locationData);
-      },
-      error => {
-        //console.error('Error getting location:', error);
-      },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-    );
+        console.log({ locationData })
+      })
+      .catch(error => console.error(error))  // TODO Set some state regarding about permission or GPS off)
   };
+  useEffect(() => console.log({ regions: location?.region }), [location])
 
   useEffect(() => {
     if (Polígonos && Polígonos.length === 0) {
       return;
     }
-    getLocation();
-    let refrescarUbicación: NodeJS.Timeout | null;
-    refrescarUbicación = setInterval(async () => {
-      getLocation();
-    }, 5000);
-
+    updateLocation();
+    let refrescarUbicación: NodeJS.timeout | null;
+    refrescarUbicación = setInterval(updateLocation, LOCATION_UPDATE_INTERVAL);
+    
     return () => {
       if (refrescarUbicación) {
         clearInterval(refrescarUbicación);
