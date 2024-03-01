@@ -15,12 +15,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 interface AccordionProps {
   title: string;
   children: React.ReactNode;
-  titleStyle: CSSProperties;
-  innerStyle: CSSProperties;
-  expanded: Boolean;
+  titleStyle?: CSSProperties;
+  innerStyle?: CSSProperties;
+  expanded?: Boolean;
 }
 
-export const Accordion = ({title, children, titleStyle, innerStyle, expanded}: AccordionProps) => {
+export const Accordion = ({title, children, titleStyle, innerStyle, expanded, ...props}: AccordionProps) => {
   const [isExpanded, setIsExpanded] = useState(expanded || false);
   const [animation] = useState(new Animated.Value(0));
   const {width} = useWindowDimensions();
@@ -37,7 +37,7 @@ export const Accordion = ({title, children, titleStyle, innerStyle, expanded}: A
   };
 
   return (
-    <View style={{...AcordionStyles.container, width: width / 1.1}}>
+    <View style={{...AcordionStyles.container, width: "100%", ...props.style}}>
       <TouchableOpacity
         activeOpacity={0.8}
         style={{flexDirection: 'row'}}
@@ -82,8 +82,12 @@ const AcordionStyles = StyleSheet.create({
     width: '90%',
     //maxHeight: 320,
     ...styles.centerItems,
+    borderWidth: 1,
+    borderStyle: "dotted",
+    borderColor: colores.negro,
+    borderTopWidth: 0,
     padding: 4,
-    backgroundColor: colores.LocationBg,
+    //backgroundColor: colores.LocationBg,
     borderBottomRightRadius: 10,
     borderBottomLeftRadius: 10,
   },

@@ -147,7 +147,31 @@ export const MainScreen = () => {
         clearInterval(refrescarUbicación);
       }
     };
-  }, [Polígonos]); // Añadir poligonos como dependencia
+  }, [Polígonos]);
+
+  const Locations = ({lotes, ...props}: {lotes: ILote[]}) => {  
+    return <View style={props.style}>{
+      lotes.map(l => <Accordion key={l.id} title={l.Nombre} expanded={l.Areas.length > 0}>
+        {l.Areas.length > 0 
+          ?l.Areas
+            .map(a => <ButtonWithText key={a.id}
+              onPress={() => navigation.dispatch(
+                CommonActions.navigate('PlantasScreen', {
+                  idArea: a.id,
+                  data: a,
+                  title: a.Codigo_Area,
+                })
+              )}
+              icon="location"
+              title={a.Nombre} 
+            />)
+          :<Text style={{ color: colores.negro }}>
+            Sin lotes
+          </Text>
+        }
+      </Accordion>)
+    }</View>
+  }
 
   return (
     <BaseScreen>
@@ -162,65 +186,46 @@ export const MainScreen = () => {
       />
       <View>
         {Object.keys(Indices).length > 0 && Lotes.length > 0 
-          ?(
-            <ScrollView>
-              {Lotes.map(l => <Accordion key={l.id} title={l.Nombre} expanded={l.Areas.length > 0}
-                innerStyle={{ backgroundColor: colores.blanco }}
-              >
-                {l.Areas.length > 0 
-                  ?l.Areas.map(a => Areas[Indices.Areas[a]])
-                    .map(a => (
-                      <ButtonWithText
-                        key={a.id}
-                        onPress={() => {
-                          navigation.dispatch(
-                            CommonActions.navigate('PlantasScreen', {
-                              idArea: a.id,
-                              data: a,
-                              title: a.Codigo_Area,
-                            })
-                          );
-                        } }
-                        icon="location"
-                        title={a.Nombre} 
-                      />
-                    ))
-                  :<Text style={{ color: colores.negro }}>
-                    Sin áreas
-                  </Text>
-                }
-              </Accordion>)}
-            </ScrollView>
-          ) 
+          ?<ScrollView>
+            {location?.region?.length 
+              ?<View>
+                <Accordion title='Áreas y lotes cercanos'
+                  innerStyle={{
+                    borderBottomWidth: 3,
+                    borderBottomStyle: "solid",
+                    borderBottomColor: colores.negro,
+                    padding: 5,
+                  }}
+                >
+                  <Locations
+                    lotes={location.region
+                      .map(r => {
+                        const _area = Areas[Indices.Areas[r.Id_Area]];
+                        console.log({_area})
+                        const _lote = Lotes[Indices.Lotes[_area.Id_Lote]];
+                        return ({ ..._lote, Areas: [Areas[Indices.Areas[r.Id_Area]]] });
+                      })
+                      /* .reduce((all, lote) => {
+                        const loteAnterior = all[lote.id];
+                        loteAnterior.Areas
+                        all[lote.id] = loteAnterior || lote
+                        return all
+                      }, {}) */
+                    }
+                  />
+                </Accordion>
+              </View>
+              :null
+            }
+            <Locations
+              lotes={Lotes.map(l => ({...l, Areas: l.Areas.map(id => Areas[Indices.Areas[id]])}))}
+            />
+
+            {/* Overscroll */}
+            <View style={{ width: "100%", height: 56, }} />
+          </ScrollView>
           :<Text>No existen lotes ni áreas</Text>
         }
-      </View>
-
-      <View>
-        {location && location.region ? (
-          location?.region.map((a, index) => (
-            <ButtonWithText
-              key={index}
-              onPress={() => {
-                navigation.dispatch(
-                  CommonActions.navigate('PlantasScreen', {
-                    idArea: a.Id,
-                    datos: a,
-                    title: a.Lote,
-                  }),
-                );
-              }}
-              icon="arrow"
-              title={a.Cod}
-            />
-          ))
-        ) : (
-          <>
-            <Text style={{color: colores.negro}}>
-              No hay lotes cercanos disponibles, puedes buscarlo por su código.
-            </Text>
-          </>
-        )}
       </View>
     </BaseScreen>
   );
