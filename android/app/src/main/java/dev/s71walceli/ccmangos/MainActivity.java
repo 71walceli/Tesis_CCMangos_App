@@ -1,4 +1,4 @@
-package com.uae_app;
+package dev.s71walceli.ccmangos;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

@@ -1,4 +1,4 @@
-package com.uae_app;
+package dev.s71walceli.ccmangos;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
