@@ -66,3 +66,4 @@ yarn-error.log
 /coverage
 
 Data
+android/app/src/main/assets/index.android.bundle
