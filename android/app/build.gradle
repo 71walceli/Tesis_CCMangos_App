@@ -83,9 +83,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.uae_app"
+    namespace "dev.s71walceli.ccmangos"
     defaultConfig {
-        applicationId "com.uae_app"
+        applicationId "dev.s71walceli.ccmangos"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 9
@@ -98,18 +98,47 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile file('release.keystore')
+            //storePassword System.console().readLine("\nKeystore password:")
+            storePassword "$System.env.KEY_PASSPHRASE"
+            keyAlias 'your_key_alias'
+            //keyPassword System.console().readLine("\nKeystore password:")
+            keyPassword "$System.env.KEY_PASSPHRASE"
+        }
     }
+
+    def appId = defaultConfig.applicationId
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            //applicationId "${appId}.dev"
+            applicationIdSuffix ".dev"
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            //applicationId appId
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+
+        applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            //variant.appId = "${appId}.dev"
+            variant.outputs.each { output ->
+                output.outputFileName = "${appId}.apk"
+                //output.versionCodeOverride = yourProductionVersionCode
+            }
+        } else if (variant.buildType.name == "debug") {
+            //variant.appId = "dev.71walceli.ccmangos"
+            variant.outputs.each { output ->
+                output.outputFileName = "${appId}.apk"
+                //output.versionCodeOverride = yourDevVersionCode
+            }
+        }
+    }
     }
 }
 
