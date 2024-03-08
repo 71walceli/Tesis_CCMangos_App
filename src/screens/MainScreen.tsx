@@ -3,13 +3,11 @@ import {CheckInternetContext } from '../context/CheckInternetContext';
 import {IArea, IPoligonos, ILocation, ILote} from '../interfaces/ApiInterface';
 import React, {useContext, useEffect, useState } from 'react';
 import { ButtonWithText } from '../components/ButtonWithText';
-import Geolocation from '@react-native-community/geolocation';
 import { AuthContext } from '../context/AuthContext';
 import { BaseScreen } from '../Template/BaseScreen';
 import { colores } from '../theme/appTheme';
 import { Metodos } from '../hooks/Metodos';
-import { Text, View } from 'react-native';
-import { SearchInput } from '../components/SearchInput';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useRequest } from '../api/useRequest';
 import { Endpoints } from '../../../Common/api/routes';
@@ -18,6 +16,8 @@ import { arrayIndexer } from '../helpers/utils';
 import { Accordion } from '../components/Acordion';
 import { LoaderContext } from '../context/LoaderContext';
 import { useLocationController } from '../hooks/useLocationController';
+import { TextInput } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 
 interface IndiceTipos {
@@ -117,6 +117,9 @@ export const MainScreen = () => {
       .then(position => {
         const locationData: any = position.coords;
         // Filtrar los polígonos basados en la ubicación actual
+        if (Polígonos === undefined) {
+          return
+        }
         const filteredPoligonos = Polígonos
           .filter(item => item.Id_Area )
           .filter(item =>
@@ -149,7 +152,7 @@ export const MainScreen = () => {
   useEffect(() => console.log({ regions: location?.region }), [location])
 
   useEffect(() => {
-    if (Polígonos && Polígonos.length === 0) {
+    if (Polígonos === undefined || Polígonos.length === 0) {
       return;
     }
     updateLocation();
@@ -164,6 +167,7 @@ export const MainScreen = () => {
   }, [Polígonos]);
 
   const Locations = ({lotes, ...props}: {lotes: ILote[]}) => {  
+    //console.log({ tag: "lotes", value: JSON.stringify(lotes, null, 2) })
     return <View style={props.style}>{
       lotes.map(l => <Accordion key={l.id} title={l.Nombre} expanded={l.Areas.length > 0}>
         {l.Areas.length > 0 
@@ -187,20 +191,76 @@ export const MainScreen = () => {
     }</View>
   }
 
+  const [searchText, setSearchText] = useState("")
+
+  const isSubstring = (text, substring) => {
+    const result = text?.includes(substring);
+    return result;
+  }
+  const matchesText = (item, searchTerm) => {
+    searchTerm = searchTerm?.toLowerCase()
+
+    return searchTerm !== "" && (
+      isSubstring(item.Codigo_Lote?.toLowerCase(), searchTerm)
+      || isSubstring(item.Codigo_Area?.toLowerCase(), searchTerm)
+      || isSubstring(item.Nombre?.toLowerCase(), searchTerm)
+    );
+  }
+  const filteredSearch = React.useMemo(() => Lotes
+    .map(l => ({...l, Areas: l.Areas.map(a => Areas[Indices.Areas[a]])}))
+    .filter(function nameMatches(l) {
+      const meetsCriteria = matchesText(l, searchText);
+      l.Areas = meetsCriteria ? l.Areas : l.Areas.filter(a => matchesText(a, searchText))
+      const childCount = l.Areas.length
+      return meetsCriteria || childCount > 0;
+    }), 
+    [searchText]
+  )
+
   return (
     <BaseScreen>
-      <SearchInput
-        placeholder={'Buscar por código de lote'}
-        keyBoard="visible-password"
-        catalog={Polígonos}
-        textCompare={(item: IPoligonos) =>
-          item.CodigoLote !== null ? [item.CodigoLote] : []
-        }
-        result={setFiltrado}
-      />
+      <View
+        style={{
+          width: '100%',
+          marginBottom: 10
+        }}>
+        <View style={styles.textBackground}>
+          <TextInput
+            placeholder={"Buscar Lotes y áreas"}
+            placeholderTextColor={colores.plomo}
+            style={{
+              ...styles.textInput,
+              top: Platform.OS === 'ios' ? 0 : 2,
+              color: 'black',
+            }}
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+          <Icon name="search-outline" color="grey" size={25} />
+        </View>
+      </View>
       <View>
         {Object.keys(Indices).length > 0 && Lotes.length > 0 
           ?<ScrollView>
+            {searchText !== "" && filteredSearch.length > 0
+              ?<View>
+                <Accordion title='Búsqueda' expanded
+                  innerStyle={{
+                    borderBottomWidth: 3,
+                    borderBottomStyle: "solid",
+                    borderBottomColor: colores.negro,
+                    padding: 5,
+                  }}
+                >
+                  <Locations
+                    lotes={filteredSearch}
+                  />
+                </Accordion>
+              </View>
+              :<Text>No se encuentra lote o área.</Text>
+            }
             {location?.region?.length 
               ?<View>
                 <Accordion title='Áreas y lotes cercanos'
@@ -212,19 +272,25 @@ export const MainScreen = () => {
                   }}
                 >
                   <Locations
-                    lotes={location.region
-                      .map(r => {
-                        const _area = Areas[Indices.Areas[r.Id_Area]];
-                        console.log({_area})
-                        const _lote = Lotes[Indices.Lotes[_area.Id_Lote]];
-                        return ({ ..._lote, Areas: [Areas[Indices.Areas[r.Id_Area]]] });
-                      })
-                      /* .reduce((all, lote) => {
-                        const loteAnterior = all[lote.id];
-                        loteAnterior.Areas
-                        all[lote.id] = loteAnterior || lote
-                        return all
-                      }, {}) */
+                    lotes={ // TODO Wra it in useMemo
+                      Object.values(location.region
+                        .map(r => {
+                          const _area = Areas[Indices.Areas[r.Id_Area]];
+                          const _lote = Lotes[Indices.Lotes[_area.Id_Lote]];
+                          return ({ ..._lote, Areas: [Areas[Indices.Areas[r.Id_Area]]] });
+                        })
+                        .map(l => ({
+                          [l.id]: l
+                        }))
+                        .reduce(
+                          (all, _l) => {
+                            const [id, l] = Object.entries(_l)[0]
+                            l.Areas = (all[id]?.Areas || []).concat(l.Areas)
+                            return Object.assign(all, { [id]: l })
+                          },
+                          {}
+                        )
+                      )
                     }
                   />
                 </Accordion>
@@ -244,3 +310,27 @@ export const MainScreen = () => {
     </BaseScreen>
   );
 };
+
+const styles = StyleSheet.create({
+  textBackground: {
+    backgroundColor: colores.plomoclaro,
+    borderRadius: 50,
+    paddingHorizontal: 18,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  textInput: {
+    fontSize: 16,
+    width: '90%',
+  },
+});
+
