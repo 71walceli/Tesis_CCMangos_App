@@ -4,8 +4,8 @@ import {AlertContext} from './AlertContext';
 import {sleep} from '../helpers/sleep';
 import {useStorage} from '../data/useStorage';
 import {useRequest} from '../api/useRequest';
-import {TokenResponse} from '../../../Common/interfaces/models';
-import {Endpoints} from '../../../Common/api/routes';
+import {TokenResponse} from 'common/interfaces/models';
+import {Endpoints} from 'common/api/routes';
 import { useBaseStorage } from '../data/useBaseStorage';
 
 
