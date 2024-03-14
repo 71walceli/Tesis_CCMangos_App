@@ -4,9 +4,9 @@
     // Other settings
     "baseUrl": "./" /* Base directory to resolve non-absolute module names. */,
     "paths": {
-      "@Common/*": ["../../../Common/*"]
+      "@Common/*": ["../Common/*"]
     },
     // Other settings
   },
-  "include": ["./src/*", "../../../Common/*"]
+  "include": ["./src/*", "../Common/*"]
 }
