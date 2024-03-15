@@ -1,13 +1,13 @@
-import {CommonActions, useNavigation } from '@react-navigation/native';
-import {CheckInternetContext } from '../context/CheckInternetContext';
-import {IArea, IPoligonos, ILocation, ILote} from '../interfaces/ApiInterface';
-import React, {useContext, useEffect, useState } from 'react';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CheckInternetContext } from '../context/CheckInternetContext';
+import { IArea, IPoligonos, ILocation, ILote } from '../interfaces/ApiInterface';
+import React, { useContext, useEffect, useState } from 'react';
 import { ButtonWithText } from '../components/ButtonWithText';
 import { AuthContext } from '../context/AuthContext';
 import { BaseScreen } from '../Template/BaseScreen';
 import { colores } from '../theme/appTheme';
 import { Metodos } from '../hooks/Metodos';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useRequest } from '../api/useRequest';
 import { Endpoints } from '../../../Common/api/routes';
@@ -16,8 +16,8 @@ import { arrayIndexer } from '../helpers/utils';
 import { Accordion } from '../components/Acordion';
 import { LoaderContext } from '../context/LoaderContext';
 import { useLocationController } from '../hooks/useLocationController';
-import { TextInput } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { SearchInput } from '../components/SearchInput';
 
 
 interface IndiceTipos {
@@ -38,7 +38,6 @@ export const MainScreen = () => {
   const [Polígonos, setPolígonos] = useState<IPoligonos[]>([]);
   const [Areas, setAreas] = useState<IArea[]>([]);
   const [Lotes, setLotes] = useState<ILote[]>([]);
-  const [filtrado, setFiltrado] = useState<IPoligonos[]>([]);
   const [location, setLocation] = useState<ILocation | null>(null);
 
   useEffect(() => { // Data loading
@@ -167,9 +166,8 @@ export const MainScreen = () => {
   }, [Polígonos]);
 
   const Locations = ({lotes, ...props}: {lotes: ILote[]}) => {  
-    //console.log({ tag: "lotes", value: JSON.stringify(lotes, null, 2) })
     return <View style={props.style}>{
-      lotes.map(l => <Accordion key={l.id} title={l.Nombre} expanded={l.Areas.length > 0}>
+      lotes.map(l => <Accordion key={l.id} title={`${l.Codigo_Lote} ${l.Nombre}`} expanded={l.Areas.length > 0}>
         {l.Areas.length > 0 
           ?l.Areas
             .map(a => <ButtonWithText key={a.id}
@@ -181,7 +179,7 @@ export const MainScreen = () => {
                 })
               )}
               icon="location"
-              title={a.Nombre} 
+              title={a.Codigo_Area} 
             />)
           :<Text style={{ color: colores.negro }}>
             Sin lotes
@@ -192,7 +190,6 @@ export const MainScreen = () => {
   }
 
   const [searchText, setSearchText] = useState("")
-
   const isSubstring = (text, substring) => {
     const result = text?.includes(substring);
     return result;
@@ -223,23 +220,14 @@ export const MainScreen = () => {
         style={{
           width: '100%',
           marginBottom: 10
-        }}>
-        <View style={styles.textBackground}>
-          <TextInput
-            placeholder={"Buscar Lotes y áreas"}
-            placeholderTextColor={colores.plomo}
-            style={{
-              ...styles.textInput,
-              top: Platform.OS === 'ios' ? 0 : 2,
-              color: 'black',
-            }}
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={searchText}
-            onChangeText={setSearchText}
-          />
-          <Icon name="search-outline" color="grey" size={25} />
-        </View>
+        }}
+      >
+        <SearchInput
+          placeholder={"Buscar Lotes y áreas"}
+          value={searchText}
+          onChange={setSearchText}
+        />
+        <Icon name="search-outline" color="grey" size={25} />
       </View>
       <View>
         {Object.keys(Indices).length > 0 && Lotes.length > 0 
@@ -310,27 +298,3 @@ export const MainScreen = () => {
     </BaseScreen>
   );
 };
-
-const styles = StyleSheet.create({
-  textBackground: {
-    backgroundColor: colores.plomoclaro,
-    borderRadius: 50,
-    paddingHorizontal: 18,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  textInput: {
-    fontSize: 16,
-    width: '90%',
-  },
-});
-
