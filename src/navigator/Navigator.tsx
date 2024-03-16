@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
+
 import {AuthContext} from '../context/AuthContext';
 import {LoadingScreen} from '../screens/LoadingScreen';
 import {WelcomeScreen} from '../screens/Auth/WelcomeScreen';
@@ -16,6 +17,7 @@ import {ReadingScreen} from '../screens/ReadingScreen';
 import {PlantasScreen} from '../screens/PlantasScreen';
 import { FotoPlantaScreen } from '../screens/FotoPlantaScreen';
 import { LoginScreen } from '../screens/Auth/LoginScreen';
+
 
 const Stack = createStackNavigator();
 export const Navigator = () => {
