@@ -1,14 +1,9 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {BaseScreen} from '../Template/BaseScreen';
 import {Text, View} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {IPoligonos, IRegion, IPlanta, IPlantas} from '../interfaces/ApiInterface';
-import {
-  CommonActions,
-  useIsFocused,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {CommonActions, useNavigation, useRoute} from '@react-navigation/native';
+
+import {IPoligonos, IRegion, IPlanta} from '../interfaces/ApiInterface';
+import {BaseScreen} from '../Template/BaseScreen';
 import {ButtonWithText} from '../components/ButtonWithText';
 import {LoaderContext} from '../context/LoaderContext';
 import {useBaseStorage} from '../data/useBaseStorage';
@@ -18,6 +13,10 @@ import { Endpoints } from '../../../Common/api/routes';
 import { arrayIndexer } from '../helpers/utils';
 import { useRequest } from '../api/useRequest';
 import { AuthContext } from '../context/AuthContext';
+import { Accordion } from '../components/Acordion';
+import { isSubstring } from '../helpers/isSubstring';
+import { SearchInput } from '../components/SearchInput';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 interface IndiceTipos {
@@ -31,13 +30,12 @@ export const PlantasScreen = () => {
     data: IPoligonos | undefined;
     datos: IRegion | undefined;
   };
-  const isFocused = useIsFocused();
   const {setIsLoading} = useContext(LoaderContext);
   const {GetData, SaveData} = useBaseStorage();
   const [lecturaRealizada, setLecturaRealizada] = useState<number[]>([]);
   const elNavegadorMasChulo = useNavigation();
   
-  const [plantas, setPlantas] = useState<IPlanta[]>([]);
+  const [Plantas, setPlantas] = useState<IPlanta[]>([]);
   const [indices, setIndices] = useState<IndiceTipos>()
   const {hasConection} = useContext(CheckInternetContext);
   const {getRequest} = useRequest()
@@ -80,64 +78,90 @@ export const PlantasScreen = () => {
     loadData();
   }, [hasConection]);
 
-  const cargarPlantasGuardadas = async () => {
-    try {
-      setIsLoading(true);
-      const plantasGuardadas = await AsyncStorage.getItem('Plantas');
-      if (plantasGuardadas) {
-        const plantas: IPlanta[] = JSON.parse(plantasGuardadas);
-        setPlantas(plantas);
-      } else {
-        console.log('No se encontraron platas guardados en AsyncStorage');
+  const Locations = ({plantas, ...props}: {plantas: IPlanta[]}) => {  
+    return <View style={props.style}>
+      {plantas.map(l => {
+        const valueOT = lecturaRealizada
+          ? lecturaRealizada.includes(l.id)
+          : false;
+
+        return <ButtonWithText
+          disabled={valueOT ? true : false || l.Disabled}
+          key={l.id}
+          onPress={() => elNavegadorMasChulo.dispatch(
+            CommonActions.navigate('LecturaScreen', { l })
+          )}
+          title={l.Codigo_Planta}
+          color={valueOT || l.Disabled
+            ? colores.plomo
+            : colores.LocationBg
+          }
+          icon="flower" 
+        />;
+      })}
+    </View>
+  }
+
+  const [searchText, setSearchText] = useState("")
+  const matchesText = (item, searchTerm) => searchTerm !== "" 
+    && isSubstring(item.Codigo_Planta?.toLowerCase(), searchTerm?.toLowerCase())
+  const filteredSearch = React.useMemo(() => Plantas
+    .map(p => ({...p}))
+    .filter(p => matchesText(p, searchText)), 
+    [searchText]
+  )
+
+  return <BaseScreen isScroll={false}>
+    <View style={{ width: '100%', marginBottom: 10 }}>
+      <SearchInput value={searchText} onChange={setSearchText} placeholder={"Buscar Plantas"}/>
+    </View>
+
+    <ScrollView>
+      {searchText !== ""
+        ?<Accordion title='Resultados de búsqueda' expanded={filteredSearch.length > 0}>
+          {filteredSearch.length > 0 
+            ?<Locations plantas={filteredSearch} />
+            :<Text>Sin Resultados</Text>
+          }
+        </Accordion>
+        :null
       }
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error al cargar las plantas desde AsyncStorage:', error);
-    }
-  };
+      {Plantas?.length > 0 ? (
+        <View style={{
+          width: "100%",
+        }}>
+          {Plantas.map(plnt => {
+            const valueOT = lecturaRealizada
+              ? lecturaRealizada.includes(plnt.id)
+              : false;
 
-  return <BaseScreen isScroll={true}>
-    <Text
-      style={{
-        color: colores.primario,
-        fontWeight: 'bold',
-        marginTop: 20,
-      }}>
-      {datos?.Cod || data?.CodigoLote}
-    </Text>
-    {plantas?.length > 0 ? (
-      <View>
-        {plantas.map(plnt => {
-          const valueOT = lecturaRealizada
-            ? lecturaRealizada.includes(plnt.id)
-            : false;
-
-          return (
-            <ButtonWithText
-              disabled={valueOT ? true : false || plnt.Disabled}
-              key={plnt.id}
-              onPress={() =>
-                elNavegadorMasChulo.dispatch(
-                  CommonActions.navigate('LecturaScreen', {plnt}),
-                )
-              }
-              title={plnt.Nombre}
-              color={
-                valueOT || plnt.Disabled
-                  ? colores.plomo
-                  : colores.LocationBg
-              }
-              icon="flower"
-            />
-          );
-        })}
-      </View>
-    ) : (
-      <>
-        <Text style={{textAlign: 'center', color: 'black'}}>
-          No hay plantas disponibles en tu lote.
-        </Text>
-      </>
-    )}
+            return (
+              <ButtonWithText
+                disabled={valueOT ? true : false || plnt.Disabled}
+                key={plnt.id}
+                onPress={() =>
+                  elNavegadorMasChulo.dispatch(
+                    CommonActions.navigate('LecturaScreen', {plnt}),
+                  )
+                }
+                title={plnt.Codigo_Planta}
+                color={
+                  valueOT || plnt.Disabled
+                    ? colores.plomo
+                    : colores.LocationBg
+                }
+                icon="flower"
+              />
+            );
+          })}
+        </View>
+      ) : (
+        <>
+          <Text style={{textAlign: 'center', color: 'black'}}>
+            No hay plantas disponibles en tu lote.
+          </Text>
+        </>
+      )}
+    </ScrollView>
   </BaseScreen>;
 };
