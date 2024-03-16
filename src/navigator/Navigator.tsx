@@ -8,7 +8,7 @@ import {colores} from '../theme/appTheme';
 import {StackHeader} from './StackHeader';
 import {RegisterScreen} from '../screens/Auth/RegisterScreen';
 import {RecoveryPasswordScreen} from '../screens/Auth/RecoveryPasswordScreen';
-import {MainScreen} from '../screens/MainScreen';
+import {AreasLotes} from '../screens/AreasLotes';
 import {DrawerHeader} from './DrawerHeader';
 import {Tabs} from './Tabs';
 import {LecturaScreen} from '../screens/LecturaScreen';
@@ -91,11 +91,11 @@ export const Navigator = () => {
                 />
 
                 <Stack.Screen
-                  name="MainScreen"
-                  component={MainScreen}
+                  name="AreasLotes"
+                  component={AreasLotes}
                   options={{
                     header: props => (
-                      <StackHeader title={'MainScreen'}></StackHeader>
+                      <StackHeader title={'AreasLotes'}></StackHeader>
                     ),
                   }}
                 />

@@ -3,7 +3,7 @@ import {Platform} from 'react-native';
 import {iconos} from '../theme/appTheme';
 import {colores} from '../theme/appTheme';
 import {InfoScreen} from '../screens/InfoScreen';
-import {MainScreen} from '../screens/MainScreen';
+import {AreasLotes} from '../screens/AreasLotes';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {ReadingScreen} from '../screens/ReadingScreen';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -16,7 +16,7 @@ const TabOptions = [
     name: 'HomeScreen',
     title: 'Producción',
     icon: iconos.home,
-    component: MainScreen,
+    component: AreasLotes,
   },
   {
     name: 'Lecturs',
