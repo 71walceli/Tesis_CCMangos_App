@@ -1,14 +1,16 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { CheckInternetContext } from '../context/CheckInternetContext';
-import { IArea, IPoligonos, ILocation, ILote } from '../interfaces/ApiInterface';
 import React, { useContext, useEffect, useState } from 'react';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+
+import { IArea, IPoligonos, ILocation, ILote } from '../interfaces/ApiInterface';
+import { Metodos } from '../hooks/Metodos';
+import { CheckInternetContext } from '../context/CheckInternetContext';
 import { ButtonWithText } from '../components/ButtonWithText';
 import { AuthContext } from '../context/AuthContext';
 import { BaseScreen } from '../Template/BaseScreen';
 import { colores } from '../theme/appTheme';
-import { Metodos } from '../hooks/Metodos';
-import { Text, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
 import { useRequest } from '../api/useRequest';
 import { Endpoints } from '../../../Common/api/routes';
 import { useBaseStorage } from '../data/useBaseStorage';
@@ -16,8 +18,8 @@ import { arrayIndexer } from '../helpers/utils';
 import { Accordion } from '../components/Acordion';
 import { LoaderContext } from '../context/LoaderContext';
 import { useLocationController } from '../hooks/useLocationController';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { SearchInput } from '../components/SearchInput';
+import { isSubstring } from '../helpers/isSubstring';
 
 
 interface IndiceTipos {
@@ -26,7 +28,7 @@ interface IndiceTipos {
   Lotes: ILote[];
 }
 
-export const MainScreen = () => {
+export const AreasLotes = () => {
   const {setIsLoading} = useContext(LoaderContext);
   const navigation = useNavigation();
   const {getRequest} = useRequest()
@@ -167,7 +169,9 @@ export const MainScreen = () => {
 
   const Locations = ({lotes, ...props}: {lotes: ILote[]}) => {  
     return <View style={props.style}>{
-      lotes.map(l => <Accordion key={l.id} title={`${l.Codigo_Lote} ${l.Nombre}`} expanded={l.Areas.length > 0}>
+      lotes.map(l => <Accordion key={l.id} title={`${l.Codigo_Lote} ${l.Nombre}`} 
+        expanded={l.Areas.length > 0}
+      >
         {l.Areas.length > 0 
           ?l.Areas
             .map(a => <ButtonWithText key={a.id}
@@ -190,10 +194,6 @@ export const MainScreen = () => {
   }
 
   const [searchText, setSearchText] = useState("")
-  const isSubstring = (text, substring) => {
-    const result = text?.includes(substring);
-    return result;
-  }
   const matchesText = (item, searchTerm) => {
     searchTerm = searchTerm?.toLowerCase()
 
@@ -216,16 +216,9 @@ export const MainScreen = () => {
 
   return (
     <BaseScreen>
-      <View
-        style={{
-          width: '100%',
-          marginBottom: 10
-        }}
-      >
-        <SearchInput
+      <View style={{ width: '100%', marginBottom: 10 }}>
+        <SearchInput value={searchText} onChange={setSearchText} 
           placeholder={"Buscar Lotes y áreas"}
-          value={searchText}
-          onChange={setSearchText}
         />
         <Icon name="search-outline" color="grey" size={25} />
       </View>
