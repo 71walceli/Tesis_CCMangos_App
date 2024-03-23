@@ -1,6 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
-import Icon from 'react-native-vector-icons/Ionicons';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -118,7 +117,7 @@ export const AreasLotes = () => {
       .then(position => {
         const locationData: any = position.coords;
         // Filtrar los polígonos basados en la ubicación actual
-        if (Polígonos === undefined) {
+        if (!Polígonos) {
           return
         }
         const filteredPoligonos = Polígonos
@@ -128,8 +127,8 @@ export const AreasLotes = () => {
               locationData.latitude,
               locationData.longitude,
               item.geocoordenadas.map((item: any) => ({
-                longitude: parseFloat(item.lng),
                 latitude: parseFloat(item.lat),
+                longitude: parseFloat(item.lng),
               })),
             ),
           );
@@ -214,13 +213,28 @@ export const AreasLotes = () => {
     [searchText]
   )
 
+  const closestRegions = useMemo(() => location?.region
+    .map(r => {
+      const _area = Areas[Indices.Areas?.[r.Id_Area]];
+      const _lote = Lotes[Indices.Lotes?.[_area?.Id_Lote]];
+      if (!_lote) {
+        return;
+      }
+      return ({ ..._lote, Areas: [Areas[Indices.Areas?.[r.Id_Area]]] });
+    })
+    .filter(r => r)
+    .map(l => ({
+      [l.id]: l
+    })),
+    [location?.region]
+  );
+
   return (
     <BaseScreen>
       <View style={{ width: '100%', marginBottom: 10 }}>
         <SearchInput value={searchText} onChange={setSearchText} 
           placeholder={"Buscar Lotes y áreas"}
         />
-        <Icon name="search-outline" color="grey" size={25} />
       </View>
       <View>
         {Object.keys(Indices).length > 0 && Lotes.length > 0 
@@ -254,15 +268,7 @@ export const AreasLotes = () => {
                 >
                   <Locations
                     lotes={ // TODO Wra it in useMemo
-                      Object.values(location.region
-                        .map(r => {
-                          const _area = Areas[Indices.Areas[r.Id_Area]];
-                          const _lote = Lotes[Indices.Lotes[_area.Id_Lote]];
-                          return ({ ..._lote, Areas: [Areas[Indices.Areas[r.Id_Area]]] });
-                        })
-                        .map(l => ({
-                          [l.id]: l
-                        }))
+                      Object.values(closestRegions
                         .reduce(
                           (all, _l) => {
                             const [id, l] = Object.entries(_l)[0]
