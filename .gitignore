@@ -67,3 +67,5 @@ yarn-error.log
 
 Data
 android/app/src/main/assets/index.android.bundle
+android/app/src/main/res/drawable-*
+android/app/src/main/res/raw
