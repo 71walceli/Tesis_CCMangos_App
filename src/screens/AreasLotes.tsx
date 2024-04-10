@@ -145,7 +145,6 @@ export const AreasLotes = () => {
 
         // Actualizar el estado con los datos de ubicación
         setLocation(locationData);
-        console.log({ locationData })
       })
       .catch(error => console.error(error))  // TODO Set some state regarding about permission or GPS off)
   };
@@ -217,12 +216,9 @@ export const AreasLotes = () => {
     .map(r => {
       const _area = Areas[Indices.Areas?.[r.Id_Area]];
       const _lote = Lotes[Indices.Lotes?.[_area?.Id_Lote]];
-      if (!_lote) {
-        return;
-      }
-      return ({ ..._lote, Areas: [Areas[Indices.Areas?.[r.Id_Area]]] });
+      return { ..._lote, Areas: [Areas[Indices.Areas?.[r.Id_Area]]] };
     })
-    .filter(r => r)
+    .filter(r => r && r.Areas[0] !== undefined)
     .map(l => ({
       [l.id]: l
     })),
@@ -256,7 +252,7 @@ export const AreasLotes = () => {
               </View>
               :<Text>No se encuentra lote o área.</Text>
             }
-            {location?.region?.length 
+            {closestRegions?.length 
               ?<View>
                 <Accordion title='Áreas y lotes cercanos'
                   innerStyle={{

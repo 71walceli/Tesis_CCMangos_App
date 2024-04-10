@@ -1,17 +1,18 @@
 import React, { useRef, useState} from 'react';
 import {StyleSheet, View, Text, AppState} from 'react-native';
 import {useIsFocused, useRoute} from '@react-navigation/native';
-import {BaseScreen} from '../Template/BaseScreen';
-import {IPlantas} from '../../../Common/interfaces/models';
-import {colores, styles} from '../theme/appTheme';
 import {Card, RadioButton} from 'react-native-paper';
 import {useWindowDimensions} from 'react-native';
-import {TextButton} from '../components/TextButton';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import {format} from 'date-fns';
 import {moveFile, ExternalStorageDirectoryPath, mkdir} from 'react-native-fs';
 import {extname} from 'path';
 import Toast from 'react-native-toast-message';
+
+import {BaseScreen} from '../Template/BaseScreen';
+import {IPlantas} from '../../../Common/interfaces/models';
+import {colores, styles} from '../theme/appTheme';
+import {TextButton} from '../components/TextButton';
 
 
 export const FotoPlantaScreen = () => {
@@ -25,8 +26,6 @@ export const FotoPlantaScreen = () => {
   const cameraRef = useRef<Camera>(null);
   const isFocused = useIsFocused();
   const appState = useRef(AppState.currentState);
-
-  console.log(lado);
 
   return (
     <BaseScreen isScroll={true}>
@@ -85,28 +84,30 @@ export const FotoPlantaScreen = () => {
                   onPress={() => {
                     cameraRef.current
                       ?.takePhoto()
-                      .then(photo => {
-                        const dateTimeString = format(
-                          Date.now(),
-                          'yyyyMMdd-HHmmss',
-                        );
-                        const destFolder = `${ExternalStorageDirectoryPath}/DCIM/PlantTrace`;
-                        mkdir(destFolder).catch(err => {
-                          throw err;
-                        });
-                        moveFile(
-                          photo.path,
-                          `${destFolder}/${dateTimeString}_${
-                            plnt.Codigo_Planta
-                          }_L${lado}${extname(photo.path)}`,
-                        );
-                        setLado('B');
-                        Toast.show({
-                          type: 'success',
-                          text1: `Foto Guardada del lado ${lado}`,
-                        });
-                      })
-                      .catch(console.error);
+                        .then(photo => {
+                          // TODO Upload to API
+
+                          const dateTimeString = format(
+                            Date.now(),
+                            'yyyyMMdd-HHmmss',
+                          );
+                          const destFolder = `${ExternalStorageDirectoryPath}/DCIM/PlantTrace`;
+                          mkdir(destFolder).catch(err => {
+                            throw err;
+                          });
+                          moveFile(
+                            photo.path,
+                            `${destFolder}/${dateTimeString}_${
+                              plnt.Codigo
+                            }_L${lado}${extname(photo.path)}`,
+                          );
+                          setLado(_lado => _lado === "A" ? "B" : "A");
+                          Toast.show({
+                            type: 'success',
+                            text1: `Foto Guardada del lado ${lado}`,
+                          });
+                        })
+                        .catch(console.error);
                   }}
                 />
               </View>

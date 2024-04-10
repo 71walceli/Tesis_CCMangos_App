@@ -1,21 +1,22 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Card, List } from 'react-native-paper';
+import { useWindowDimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 import { BaseScreen } from '../Template/BaseScreen';
 import { IEnfermedad, ILectura, IPlantas, IProfile } from "../../../Common/interfaces/models";
 import { colores, iconos, styles } from '../theme/appTheme';
 import { InputForm } from '../components/InputForm';
-import { Card, List } from 'react-native-paper';
-import { useWindowDimensions } from 'react-native';
 import { ButtonWithText } from '../components/ButtonWithText';
 import { AlertContext } from '../context/AlertContext';
 import { CheckInternetContext } from '../context/CheckInternetContext';
 import { useRequest } from '../api/useRequest';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Endpoints } from '../../../Common/api/routes';
 import { useBaseStorage } from '../data/useBaseStorage';
 import { StackHeader } from '../navigator/StackHeader';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 
 export const LecturaScreen = () => {
@@ -80,9 +81,7 @@ export const LecturaScreen = () => {
     }
   }, []);
 
-  const guardarLecturasEnLocal = async (
-    lecturas: ILectura[],
-  ): Promise<boolean> => {
+  const guardarLecturasEnLocal = async (lecturas: ILectura[],): Promise<boolean> => {
     try {
       // Obtén las lecturas existentes en "LecturasLocal" (si las hay)
       const lecturasExistentes = await AsyncStorage.getItem('LecturasLocal');

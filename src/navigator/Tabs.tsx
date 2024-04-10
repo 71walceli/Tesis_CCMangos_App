@@ -1,13 +1,14 @@
 import React from 'react';
 import {Platform} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+
 import {iconos} from '../theme/appTheme';
 import {colores} from '../theme/appTheme';
 import {InfoScreen} from '../screens/InfoScreen';
 import {AreasLotes} from '../screens/AreasLotes';
-import Icon from 'react-native-vector-icons/Ionicons';
-import {ReadingScreen} from '../screens/ReadingScreen';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import {LecturasLocales} from '../screens/LecturasLocales';
 import {PerfilScreen} from '../screens/PerfilScreen';
 
 
@@ -22,7 +23,7 @@ const TabOptions = [
     name: 'Lecturs',
     title: 'Sincronización',
     icon: iconos.ordenDeTrabajo,
-    component: ReadingScreen,
+    component: LecturasLocales,
   },
   {
     name: 'InformacionScreen',

@@ -1,10 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {BaseScreen} from '../Template/BaseScreen';
 import {Text, View, StyleSheet, useWindowDimensions} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigation} from '@react-navigation/native';
+
+import {BaseScreen} from '../Template/BaseScreen';
 import {ILectura} from '../interfaces/ApiInterface';
 import {List} from '../components/List';
 import {colores, iconos, styles} from '../theme/appTheme';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {LoaderContext} from '../context/LoaderContext';
 import {sleep} from '../helpers/sleep';
 import {useRequest} from '../api/useRequest';
@@ -12,19 +14,16 @@ import {Endpoints} from '../../../Common/api/routes';
 import {ButtonWithText} from '../components/ButtonWithText';
 import {CheckInternetContext} from '../context/CheckInternetContext';
 import {AlertContext} from '../context/AlertContext';
-import {useNavigation} from '@react-navigation/native';
 
 
-export const ReadingScreen = () => {
+export const LecturasLocales = () => {
   const {postRequest} = useRequest();
   const navigation = useNavigation();
   const {width} = useWindowDimensions();
   const {ShowAlert} = useContext(AlertContext);
   const {setIsLoading} = useContext(LoaderContext);
   const {hasConection} = useContext(CheckInternetContext);
-  const [lecturasGuardadas, setLecturasGuardadas] = useState<ILectura[]>(
-    [],
-  );
+  const [lecturasGuardadas, setLecturasGuardadas] = useState<ILectura[]>([]);
 
   useEffect(() => {
     // Cargar las lecturas guardadas en "LecturasLocal" al inicio del componente
@@ -52,10 +51,9 @@ export const ReadingScreen = () => {
   const cargarLecturasGuardadas = async () => {
     try {
       const lecturasExistentes = await AsyncStorage.getItem('LecturasLocal');
+      console.log({lecturasExistentes})
       if (lecturasExistentes) {
-        const lecturasExistentesArray: ILectura[] =
-          JSON.parse(lecturasExistentes);
-
+        const lecturasExistentesArray: ILectura[] = JSON.parse(lecturasExistentes);
         setLecturasGuardadas(lecturasExistentesArray);
       }
     } catch (error) {
@@ -90,27 +88,8 @@ export const ReadingScreen = () => {
   const enviarLecturasAlServidor = async (lecturas: ILectura[]) => {
     try {
       for (const lectura of lecturas) {
-        // Mapea las propiedades de lectura correctamente
-        console.log('lECTURA', JSON.stringify(lectura, null, 3));
-        const lecturaParaEnviar: ILectura = {
-          Id_Planta: lectura.Id_Planta,
-          E1: lectura.E1 || 0,
-          E2: lectura.E2 || 0,
-          E3: lectura.E3 || 0,
-          E4: lectura.E4 || 0,
-          E5: lectura.E5 || 0,
-          GR1: lectura.GR1 || 0,
-          GR2: lectura.GR2 || 0,
-          GR3: lectura.GR3 || 0,
-          GR4: lectura.GR4 || 0,
-          GR5: lectura.GR5 || 0,
-          Cherelles: lectura.Cherelles || 0,
-          Observacion: lectura.Observacion,
-          SyncId: lectura.SyncId,
-          FechaVisita: lectura.Fecha_Visita,
-        };
         // Hacer la solicitud al servidor para guardar la lectura
-        await postRequest(Endpoints.Lectura, lecturaParaEnviar)
+        await postRequest(Endpoints.Lectura, lectura)
           .then(async () => {
             const lecturasExistentes =
               await AsyncStorage.getItem('LecturasLocal');
@@ -138,27 +117,19 @@ export const ReadingScreen = () => {
   };
 
   return (
-    <BaseScreen>
+    <BaseScreen isScroll={true}>
+      <ButtonWithText
+        icon={iconos.sincronizar}
+        onPress={() => enviarLecturasAlServidor(lecturasGuardadas)}
+        title="Sincronizar"
+        disabled={!hasConection}
+      />
       <List
         data={lecturasGuardadas}
         refreshFunction={() => Catalogos()}
         renderItem={renderLecturas}
         ListEmptyText="No hay lecturas por visualizar"
       />
-
-      <View>
-        {lecturasGuardadas.length > 0 && hasConection && (
-          <ButtonWithText
-          color={colores.primario}
-          colorTexto={colores.grisOscuro}
-          icon="sync"
-            onPress={() =>
-              enviarLecturasAlServidor(lecturasGuardadas)
-            }
-            title={`Sincronizar`}
-          />
-        )}
-      </View>
     </BaseScreen>
   );
 };

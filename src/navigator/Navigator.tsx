@@ -13,7 +13,7 @@ import {AreasLotes} from '../screens/AreasLotes';
 import {DrawerHeader} from './DrawerHeader';
 import {Tabs} from './Tabs';
 import {LecturaScreen} from '../screens/LecturaScreen';
-import {ReadingScreen} from '../screens/ReadingScreen';
+import {LecturasLocales} from '../screens/LecturasLocales';
 import {PlantasScreen} from '../screens/PlantasScreen';
 import { FotoPlantaScreen } from '../screens/FotoPlantaScreen';
 import { LoginScreen } from '../screens/Auth/LoginScreen';
@@ -120,8 +120,8 @@ export const Navigator = () => {
                   }}
                 />
                 <Stack.Screen
-                  name="ReadingScreen"
-                  component={ReadingScreen}
+                  name="LecturasLocales"
+                  component={LecturasLocales}
                   options={{
                     header: props => (
                       <StackHeader title={'Ver Lecturas'}></StackHeader>
