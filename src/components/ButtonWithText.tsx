@@ -48,7 +48,7 @@ export const ButtonWithText = ({
       style={{
         height: alto,
         marginHorizontal: marginH,
-        backgroundColor: color,
+        backgroundColor: !disabled ? colores.LocationBg : colores.grisOscuro,
         marginVertical: marginV,
         flexDirection: 'row',
         borderRadius: radio,
