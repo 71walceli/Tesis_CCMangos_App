@@ -1,7 +1,8 @@
 import {useContext} from 'react';
+import axios, {AxiosError, AxiosResponse} from 'axios';
+
 import {AlertContext} from '../context/AlertContext';
 import {LoaderContext} from '../context/LoaderContext';
-import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiErrorResponse} from '../interfaces/BaseApiInterface';
 import {AuthContext} from '../context/AuthContext';
 import { Endpoints } from '../../../Common/api/routes';

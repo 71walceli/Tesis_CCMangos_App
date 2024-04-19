@@ -1,21 +1,25 @@
-import React, { useRef, useState} from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {StyleSheet, View, Text, AppState} from 'react-native';
 import {useIsFocused, useRoute} from '@react-navigation/native';
 import {Card, RadioButton} from 'react-native-paper';
 import {useWindowDimensions} from 'react-native';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import {format} from 'date-fns';
-import {moveFile, ExternalStorageDirectoryPath, mkdir} from 'react-native-fs';
+import {moveFile, ExternalStorageDirectoryPath, mkdir, stat} from 'react-native-fs';
 import {extname} from 'path';
 import Toast from 'react-native-toast-message';
+import axios from 'axios';
 
 import {BaseScreen} from '../Template/BaseScreen';
 import {IPlantas} from '../../../Common/interfaces/models';
 import {colores, styles} from '../theme/appTheme';
 import {TextButton} from '../components/TextButton';
+import { AuthContext } from '../context/AuthContext';
+import { Endpoints } from '../../../Common/api/routes';
 
 
 export const FotoPlantaScreen = () => {
+  const authContext = useContext(AuthContext)
   const {params} = useRoute();
   const {width} = useWindowDimensions();
   const {plnt} = params as {
@@ -95,12 +99,30 @@ export const FotoPlantaScreen = () => {
                           mkdir(destFolder).catch(err => {
                             throw err;
                           });
-                          moveFile(
-                            photo.path,
-                            `${destFolder}/${dateTimeString}_${
-                              plnt.Codigo
-                            }_L${lado}${extname(photo.path)}`,
-                          );
+
+                          const formData = new FormData();
+                          formData.append('file', { 
+                            uri: `file://${photo.path}`, 
+                            name: destinationFile, 
+                            type: mimeType,
+                          });
+                  
+                          axios.put(`${Endpoints.BaseURL}${Endpoints.PlantasFotoUpload}`, formData,
+                            {
+                              headers: {
+                                //"Content-Type": "application/x-www-form-urlencoded",
+                                "Content-Type": "multipart/form-data",
+                                "Content-Disposition": `attachment; name="null"; filename="${destinationFile}"`,
+                                ...(authContext.token?.length > 0 ? { Authorization: `Bearer ${authContext.token}` } : {}),
+                                //...formData.getHeaders(),
+                              },                            
+                            },
+                          )
+                            .catch(e => {
+                              console.error(e);
+                              console.error(e.response?.data);
+                            })
+
                           setLado(_lado => _lado === "A" ? "B" : "A");
                           Toast.show({
                             type: 'success',
