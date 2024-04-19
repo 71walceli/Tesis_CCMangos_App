@@ -91,14 +91,20 @@ export const FotoPlantaScreen = () => {
                         .then(photo => {
                           // TODO Upload to API
 
-                          const dateTimeString = format(
-                            Date.now(),
-                            'yyyyMMdd-HHmmss',
-                          );
+                          const dateTimeString = format(Date.now(), 'yyyyMMdd-HHmmss');
                           const destFolder = `${ExternalStorageDirectoryPath}/DCIM/PlantTrace`;
                           mkdir(destFolder).catch(err => {
                             throw err;
                           });
+                          const destinationFile = 
+                            `${dateTimeString}_${plnt.Codigo}_L${lado}${extname(photo.path)}`;
+                          const destinationPath = `${destFolder}/${destinationFile}`;
+                          moveFile(photo.path, destinationPath);
+
+                          const _extname = extname(photo.path)
+                          const mimeType = 
+                            _extname === ".jpg" || _extname === ".jpeg" ? "image/jpeg"
+                            : _extname === ".png" ? "image/png" : `image/${_extname.substring(1)}`
 
                           const formData = new FormData();
                           formData.append('file', { 
