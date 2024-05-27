@@ -3,7 +3,7 @@ import {useEffect, useRef, useState} from 'react';
 import {Location} from '../interfaces/UserInterface';
 
 export const useLocation = () => {
-  const [hasLocation, sethasLocation] = useState(false);
+  const [hasLocation, setHasLocation] = useState(false);
   const [initialPosition, setinitialPosition] = useState<Location>({
     latitude: 0,
     longitude: 0,
@@ -32,7 +32,7 @@ export const useLocation = () => {
       setinitialPosition(location);
       setuserLocation(location);
       //setrouteLines(routes => [...routes, location]);
-      sethasLocation(true);
+      setHasLocation(true);
     });
   }, []);
 
