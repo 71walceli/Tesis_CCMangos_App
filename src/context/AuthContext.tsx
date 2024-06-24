@@ -1,12 +1,12 @@
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import {CreateUser, LoginData} from '../interfaces/UserInterface';
 import {AlertContext} from './AlertContext';
-import {sleep} from '../helpers/sleep';
 import {useStorage} from '../data/useStorage';
 import {useRequest} from '../api/useRequest';
 import {TokenResponse} from 'common/interfaces/models';
 import {Endpoints} from 'common/api/routes';
 import { useBaseStorage } from '../data/useBaseStorage';
+import { ROLES } from '../../../Common/data';
 
 
 type AuthContextProps = {
@@ -39,7 +39,6 @@ export const AuthProvider = ({children}: any) => {
    * @returns void
    */
   const checkToken = async (): Promise<void> => {
-    await sleep(1);
     await CheckJWTInfo().then(check =>
       check
         ? GetJWTInfo().then(jwtInfo => {
@@ -66,6 +65,15 @@ export const AuthProvider = ({children}: any) => {
       password,
     })
       .then(jwtInfo => {
+        const idRolObrero = ROLES.find(rol => rol.label === "Obrero").value
+            console.log({idRolObrero});
+            if (!jwtInfo.usuario.roles.includes(idRolObrero)) {
+              const mensaje = "Solo obreros pueden iniciar sesión mediante interfaz Web";
+              setstatus('notauthenticated')
+              ShowAlert('default', { title: 'Error', message: mensaje,  });
+              return
+            }
+
         setstatus('authenticated');
         SaveJWTInfo(jwtInfo.access_token);
         SaveData(jwtInfo.usuario, "Usuario")

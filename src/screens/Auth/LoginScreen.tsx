@@ -1,4 +1,7 @@
 import React, {useContext} from 'react';
+import DeviceInfo from 'react-native-device-info';
+import Config from "react-native-config"
+
 import {View, Keyboard, Text, Image, StyleSheet} from 'react-native';
 import {colores} from '../../theme/appTheme';
 import {AuthContext} from '../../context/AuthContext';
@@ -6,10 +9,7 @@ import {useForm} from '../../hooks/useForm';
 import {ButtonWithText} from '../../components/ButtonWithText';
 import {InputForm} from '../../components/InputForm';
 import {BaseScreen} from '../../Template/BaseScreen';
-import {TextButton} from '../../components/TextButton';
-import {CommonActions, useNavigation} from '@react-navigation/native';
-import DeviceInfo from 'react-native-device-info';
-import Config from "react-native-config"
+import {useNavigation} from '@react-navigation/native';
 
 
 export const LoginScreen = () => {
@@ -64,11 +64,6 @@ export const LoginScreen = () => {
           alignSelf: 'flex-end',
           alignItems: 'flex-end',
         }}>
-        <TextButton
-          title={'¿No tienes cuenta? ¡Registrate!'}
-          onPress={() =>
-            navigation.dispatch(CommonActions.navigate('RegisterScreen'))
-          }></TextButton>
         {/* <TextButton
           title={'Recuperar cuenta'}
           onPress={() =>
