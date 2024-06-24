@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {KeyboardTypeOptions, useWindowDimensions} from 'react-native';
+import {KeyboardTypeOptions, useWindowDimensions, Text} from 'react-native';
 import {TextInput} from 'react-native-paper';
 
 import {colores, iconos} from '../theme/appTheme';
@@ -19,6 +19,7 @@ interface Props {
   colorBase?: string;
   ancho?: number;
   minLength?: number;
+  error: string;
 }
 
 export const InputForm = ({
@@ -34,18 +35,18 @@ export const InputForm = ({
   multiline = false,
   colorBase = colores.blanco,
   ancho = 0.85,
+  error,
 }: Props) => {
   const {width} = useWindowDimensions();
   const [isPasswordSecure, setisPasswordSecure] = useState(securetextentry);
 
-  return (
+  return <>
     <TextInput
       mode={'flat'}
       multiline={multiline}
       style={{
         verticalAlign: 'top',
         width: width * ancho,
-        //height: 50,
         fontSize: 18,
         backgroundColor: colorBase,
         marginVertical: 2,
@@ -80,6 +81,14 @@ export const InputForm = ({
       secureTextEntry={isPasswordSecure}
       onChangeText={value => onChange(value)}
       keyboardType={keyboard}
-      underlineColorAndroid={color}></TextInput>
-  );
+      underlineColorAndroid={color} 
+      error={Boolean(error)}
+    />
+    {error 
+      ?<Text style={{
+        color: colores.rojo,
+      }}>{error}</Text>
+      :null
+    }
+  </>;
 };

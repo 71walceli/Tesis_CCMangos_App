@@ -42,7 +42,9 @@ export const LecturaScreen = () => {
   })
   // TODO Load from API
   const [enfermedades, setEnfermedades] = useState<IEnfermedad[]>()
+  // TODO Migrar a FOrmManager
   const [lectura, setLectura] = useState(defaultFormLectura());
+  const [errores, setErrores] = useState({})
 
   const [allLecturas, setAllLecturas] = useState<ILectura[]>([]);
 
@@ -135,6 +137,7 @@ export const LecturaScreen = () => {
         FechaVisita: new Date(),
         Activo: true,
         SyncId: Date.now().toString(36) + Math.random().toString(36).substring(2),
+        // TODO TOmar coordenadas GPS
       };
 
       // Agregar la nueva lectura a allLecturas
@@ -206,6 +209,17 @@ export const LecturaScreen = () => {
     })
   }, [navigation])
 
+  const handleErrors = (error) => {
+    const [field, message] = Object.entries(error)[0]
+    setErrores(e => {
+      if (error)
+        e[field] = message
+      else
+        delete e[field]
+      return {...e}
+    })
+  }
+
   return (
     <BaseScreen isScroll={true}>
       <Card
@@ -237,7 +251,18 @@ export const LecturaScreen = () => {
                   keyboard="numeric"
                   placeholder={'N° Inflorescencias'}
                   value={lectura.CantidadInflorescencias}
-                  onChange={value => setLectura({ ...lectura, CantidadInflorescencias: value })}
+                  error={errores.CantidadInflorescencias}
+                  onChange={value => {
+                    let error: string;
+                    if (value !== "") {
+                      if (!/^\d+$/.test(value))
+                        error = "Debe ser número entero."
+                      if (Number(value) > 1000)
+                        error = "Debe ser menor a 1000."
+                    }
+                    handleErrors({CantidadInflorescencias: error})
+                    setLectura({ ...lectura, CantidadInflorescencias: value });
+                  }}
                 />
                 <InputForm
                   colorBase={colores.plomoclaro}
@@ -245,7 +270,18 @@ export const LecturaScreen = () => {
                   ancho={0.8}
                   placeholder={'N° Fructificaciones'}
                   value={lectura.CantidadFrutonIniciales}
-                  onChange={value => setLectura({ ...lectura, CantidadFrutonIniciales: value })}
+                  error={errores.CantidadFrutonIniciales}
+                  onChange={value => {
+                    let error: string;
+                    if (value !== "") {
+                      if (!/^\d+$/.test(value))
+                        error = "Debe ser número entero."
+                      if (Number(value) > 1000)
+                        error = "Debe ser menor a 1000."
+                    }
+                    handleErrors({CantidadFrutonIniciales: error})
+                    setLectura({ ...lectura, CantidadFrutonIniciales: value });
+                  }}
                 />
                 <InputForm
                   colorBase={colores.plomoclaro}
@@ -253,15 +289,37 @@ export const LecturaScreen = () => {
                   ancho={0.8}
                   placeholder={'N° Frutos en Maduración'}
                   value={lectura.CantidadFrutosMaduración}
-                  onChange={value => setLectura({ ...lectura, CantidadFrutosMaduración: value })}
+                  error={errores.CantidadFrutosMaduración}
+                  onChange={value => {
+                    let error: string;
+                    if (value !== "") {
+                      if (!/^\d+$/.test(value))
+                        error = "Debe ser número entero."
+                      if (Number(value) > 1000)
+                        error = "Debe ser menor a 1000."
+                    }
+                    handleErrors({CantidadFrutosMaduración: error})
+                    setLectura({ ...lectura, CantidadFrutosMaduración: value });
+                  }}
                 />
                 <InputForm
                   colorBase={colores.plomoclaro}
                   keyboard="numeric"
                   ancho={0.8}
-                  placeholder={'N° Inflorescencias Perdidas'}
+                  placeholder={'N° Pérdidas'}
                   value={lectura.CantidadInflorescenciasPerdidas}
-                  onChange={value => setLectura({ ...lectura, CantidadInflorescenciasPerdidas: value })}
+                  error={errores.CantidadInflorescenciasPerdidas}
+                  onChange={value => {
+                    let error: string;
+                    if (value !== "") {
+                      if (!/^\d+$/.test(value))
+                        error = "Debe ser número entero."
+                      if (Number(value) > 1000)
+                        error = "Debe ser menor a 1000."
+                    }
+                    handleErrors({CantidadInflorescenciasPerdidas: error})
+                    setLectura({ ...lectura, CantidadInflorescenciasPerdidas: value });
+                  }}
                 />
                 <Card>
                   <Card.Title title="Enfermedades" />
