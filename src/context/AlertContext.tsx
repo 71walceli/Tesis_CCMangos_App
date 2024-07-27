@@ -1,9 +1,11 @@
 import React, {createContext, useContext, useState} from 'react';
+import {AxiosError} from 'axios';
+import Toast from 'react-native-toast-message';
+
 import {AlertImageModal} from './Alerts/AlertImageModal';
 import {AlertModal} from './Alerts/AlertModal';
 import {AlertPromtModal} from './Alerts/AlertPromtModal';
 import {AlertYesNoModal} from './Alerts/AlertYesNoModal';
-import {AxiosError} from 'axios';
 import {CheckInternetContext} from './CheckInternetContext';
 import {ApiErrorResponse} from '../interfaces/BaseApiInterface';
 import {AlertTitleType} from './Alerts/AlertBaseModal';
@@ -103,31 +105,30 @@ export const AlertProvider = ({children}: Props) => {
     error: AxiosError<ApiErrorResponse | any>,
     OkFunction?: () => void,
   ) => {
-    console.log(JSON.stringify(error, null, 3));
-    console.log('status: ', error.response?.status);
+    console.error(error);
+    console.error('status: ', error.response?.status);
 
-    ShowAlert('default', {
-      title: 'Error',
-      message:
-        error.response?.status === 401
-          ? 'Su cuenta no está autorizada, por favor inicie sesión nuevamente.'
-          : !hasConection
-          ? 'Verifique su conexión a Internet'
-          : error.response?.status! >= 400 && error.response?.status! < 500
-          ? typeof error.response?.data === 'string' &&
-            !(error.response?.data as string).toString().match(/<html|<\?xml/)
-            ? error.response.data // Si la respuesta es un string, úsalo directamente
-            : typeof error.response?.data === 'object' &&
-              typeof error.response.data.detail === 'string'
-            ? error.response.data.detail // Si hay un error_description en el objeto JSON, úsalo
-            : typeof error.response?.data.error_description === 'string'
-            ? error.response.data.error_description // Agrega esta condición
-            : 'Ocurrió un error en la consulta'
-          : error.response?.status! >= 500
-          ? 'Ocurrió un error en el servidor'
-          : 'Ocurrió un error inesperado',
-      OkFunction,
-    });
+    Toast.show({
+      type: 'error',
+      text1: 'Error',
+      text2: error.response?.status === 401
+        ? 'Su cuenta no está autorizada, por favor inicie sesión nuevamente.'
+        : !hasConection
+        ? 'Verifique su conexión a Internet'
+        : error.response?.status! >= 400 && error.response?.status! < 500
+        ? typeof error.response?.data === 'string' &&
+          !(error.response?.data as string).toString().match(/<html|<\?xml/)
+          ? error.response.data // Si la respuesta es un string, úsalo directamente
+          : typeof error.response?.data === 'object' &&
+            typeof error.response.data.detail === 'string'
+          ? error.response.data.detail // Si hay un error_description en el objeto JSON, úsalo
+          : typeof error.response?.data.error_description === 'string'
+          ? error.response.data.error_description // Agrega esta condición
+          : 'Ocurrió un error en la consulta'
+        : error.response?.status! >= 500
+        ? 'Ocurrió un error en el servidor'
+        : 'Ocurrió un error inesperado',
+    })
   };
 
   const ShowAlert = (alertType: AlertType, options: Options) => {
