@@ -187,28 +187,6 @@ export const LecturaScreen = () => {
     }
   };
 
-  // Inicialmente lo estaba haciendo Navigator, pero mejor aquí ya que allá no hay contexto de la 
-  //  planta actual.
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      header: () => (
-        <StackHeader title={'Ingresar Lectura'}
-          actions={[
-            <TouchableOpacity
-              activeOpacity={0.6}
-              // Passing plnt from here, as it's it this screen's context.
-              //@ts-ignore as mavigate doesn't expect any args, yet it works.
-              onPress={() => navigation.navigate('FotoPlantaScreen', { plnt })}
-              style={{ height: 50, width: 50, ...styles.centerItems }}
-            >
-              <Icon name="camera" size={30} color={colores.blanco} />
-            </TouchableOpacity>
-          ]}
-        />
-      ),
-    })
-  }, [navigation])
-
   const handleErrors = (error) => {
     const [field, message] = Object.entries(error)[0]
     setErrores(e => {

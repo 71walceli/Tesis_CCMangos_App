@@ -106,7 +106,7 @@ export const Navigator = () => {
                   component={LecturaScreen}
                   options={{
                     header: props => (
-                      <StackHeader title={'Ingresar Lectura'}></StackHeader>
+                      <StackHeader title={'Ingresar Control de Árbol'}></StackHeader>
                     ),
                   }}
                 />

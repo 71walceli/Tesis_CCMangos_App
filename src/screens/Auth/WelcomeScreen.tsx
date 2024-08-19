@@ -5,14 +5,15 @@ import {PermissionsContext} from '../../context/PermissionsContext';
 import {styles, colores, iconos} from '../../theme/appTheme';
 import {BaseScreen} from '../../Template/BaseScreen';
 
+
 export const WelcomeScreen = () => {
   const {askPermission} = useContext(PermissionsContext);
   return (
     <BaseScreen
       style={{
         ...styles.centerItems,
-        paddingVertical: 200,
-        paddingHorizontal: 90,
+        paddingVertical: 100,
+        paddingHorizontal: 50,
         justifyContent: 'space-evenly',
       }}>
       <Image
@@ -22,7 +23,8 @@ export const WelcomeScreen = () => {
           width: 300,
           resizeMode: 'contain',
           alignSelf: 'center',
-        }}></Image>
+        }}
+      ></Image>
       <Text
         style={{
           textAlign: 'justify',

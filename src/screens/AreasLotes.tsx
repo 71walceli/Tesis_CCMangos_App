@@ -19,6 +19,7 @@ import { LoaderContext } from '../context/LoaderContext';
 import { useLocationController } from '../hooks/useLocationController';
 import { SearchInput } from '../components/SearchInput';
 import { isSubstring } from '../helpers/isSubstring';
+import { parsePolygon } from '../../../Common/utils/polygons';
 
 
 interface IndiceTipos {
@@ -40,6 +41,9 @@ export const AreasLotes = () => {
   const [Areas, setAreas] = useState<IArea[]>([]);
   const [Lotes, setLotes] = useState<ILote[]>([]);
   const [location, setLocation] = useState<ILocation | null>(null);
+
+  const areaKey = "lotes"
+  const loteKey = "areas"
 
   useEffect(() => { // Data loading
     const loadData = async () => {
@@ -63,13 +67,6 @@ export const AreasLotes = () => {
       // 2. Si hay acceso a la API, se descargarán los datos más recientes.
       if (hasConection && token.length > 0) {
         try {
-          await getRequest<IPoligonos[]>(Endpoints.Poligonos)
-            .then(data => {
-              data.sort((o1, o2) => o1.id > o2.id ? 1 : -1)
-              _indice.GeoLotes = data
-              SaveData(data, "GeoLotes")
-              setPolígonos(data)
-            });
           await getRequest<IArea[]>(Endpoints.áreas)
             .then(data => {
               data.sort((o1, o2) => o1.id > o2.id ? 1 : -1)
@@ -84,6 +81,10 @@ export const AreasLotes = () => {
               SaveData(data, "Lotes")
               setLotes(data)
             });
+            const Poligonos = Lotes?.map(l => ({points: parsePolygon(l.Poligono), Id_Lote: l.id}))
+            console.log({ Poligonos })
+            setPolígonos(Poligonos)
+            SaveData(Poligonos, "GeoLotes")
         } catch (error) {
           // Manejar cualquier error que ocurra en geolotes o getPlantas
           console.error('Error en geolotes:', error);
@@ -107,8 +108,8 @@ export const AreasLotes = () => {
     },
     /* {
       coords: {
-        latitude: -2.1260429,
-        longitude: -79.9876802,
+        latitude: -2.3853,
+        longitude: -80.2726,
       }
     } */
   )
