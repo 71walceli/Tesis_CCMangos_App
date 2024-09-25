@@ -22,12 +22,10 @@ type PermissionsContextProps = {
 
 let AndroidPermissions: Permission[] = [
   PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
-  PERMISSIONS.ANDROID.CAMERA,
 ];
 
 let IosPermissions: Permission[] = [
   PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
-  PERMISSIONS.IOS.CAMERA,
 ];
 
 export const PermissionsContext = createContext({} as PermissionsContextProps);
